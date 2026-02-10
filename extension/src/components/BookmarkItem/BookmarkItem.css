@@ -1,0 +1,112 @@
+/* 북마크 아이템 스타일 */
+
+.bookmark-item {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-xs) var(--spacing-sm);
+  border-radius: var(--border-radius-sm);
+  transition: background-color var(--transition-fast);
+}
+
+.bookmark-item:hover {
+  background-color: var(--bg-hover);
+}
+
+.bookmark-item.selected {
+  background-color: rgba(139, 92, 246, 0.08);
+}
+
+/* 체크박스 */
+.bookmark-checkbox {
+  position: relative;
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+}
+
+.bookmark-checkbox input {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.bookmark-checkbox-custom {
+  width: 16px;
+  height: 16px;
+  border: 2px solid var(--border-color);
+  border-radius: 3px;
+  transition: all var(--transition-fast);
+}
+
+.bookmark-checkbox input:checked + .bookmark-checkbox-custom {
+  background-color: var(--accent-color);
+  border-color: var(--accent-color);
+}
+
+.bookmark-checkbox input:checked + .bookmark-checkbox-custom::after {
+  content: '✓';
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 10px;
+  font-weight: bold;
+}
+
+/* 파비콘 */
+.bookmark-favicon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  font-size: 12px;
+}
+
+.bookmark-favicon img {
+  border-radius: 2px;
+}
+
+/* 제목 */
+.bookmark-title {
+  flex: 1;
+  font-size: var(--font-size-sm);
+  color: var(--text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* 태그 */
+.bookmark-tags {
+  display: flex;
+  gap: var(--spacing-xs);
+}
+
+/* 액션 버튼 */
+.bookmark-actions {
+  display: flex;
+  gap: var(--spacing-xs);
+}
+
+.bookmark-action-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  background: transparent;
+  border: none;
+  border-radius: var(--border-radius-sm);
+  font-size: 12px;
+  cursor: pointer;
+  opacity: 0.6;
+  transition: all var(--transition-fast);
+}
+
+.bookmark-action-btn:hover {
+  background-color: var(--border-color);
+  opacity: 1;
+}

@@ -1,0 +1,12 @@
+/* 태그 배지 스타일 */
+
+.tag-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 1px 6px;
+  background-color: var(--tag-bg);
+  color: var(--tag-text);
+  font-size: var(--font-size-xs);
+  border-radius: 10px;
+  white-space: nowrap;
+}
