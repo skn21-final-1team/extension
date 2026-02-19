@@ -1,0 +1,29 @@
+{
+  "manifest_version": 3,
+  "name": "히히bookmark",
+  "version": "1.2.3",
+  "description": "Chrome 북마크를 효율적으로 관리하고 구조화할 수 있는 확장 프로그램",
+  "permissions": [
+    "bookmarks",
+    "storage"
+  ],
+  "host_permissions": [],
+  "icons": {
+    "16": "icons/icon16.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  },
+  "action": {
+    "default_popup": "src/popup/index.html",
+    "default_title": "히히bookmark",
+    "default_icon": {
+      "16": "icons/icon16.png",
+      "48": "icons/icon48.png",
+      "128": "icons/icon128.png"
+    }
+  },
+  "background": {
+    "service_worker": "src/background/index.ts",
+    "type": "module"
+  }
+}

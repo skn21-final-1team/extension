@@ -1,0 +1,48 @@
+/* 동의 모달 스타일 */
+
+.consent-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 200;
+}
+
+.consent-modal {
+  width: 90%;
+  max-width: 320px;
+  padding: var(--spacing-xl);
+  background-color: var(--bg-secondary);
+  border-radius: var(--border-radius);
+  text-align: center;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+}
+
+.consent-icon {
+  font-size: 48px;
+  margin-bottom: var(--spacing-md);
+}
+
+.consent-title {
+  font-size: var(--font-size-lg);
+  font-weight: 600;
+  margin-bottom: var(--spacing-md);
+}
+
+.consent-text {
+  font-size: var(--font-size-sm);
+  color: var(--text-secondary);
+  line-height: 1.6;
+  margin-bottom: var(--spacing-lg);
+  text-align: left;
+}
+
+.consent-btn {
+  width: 100%;
+  padding: var(--spacing-md);
+}
