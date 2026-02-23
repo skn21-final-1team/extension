@@ -1,6 +1,6 @@
-# Privacy Policy for DeepDive
+# Privacy Policy for Bookalpie
 
-Last updated: 2026-02-10
+Last updated: 2026-02-23
 
 ## 1. Introduction
 This extension respects your privacy. We do not collect, store, or share your personal data with third parties.
@@ -21,9 +21,9 @@ If you have any questions about this privacy policy, please contact us via the C
 
 ---
 
-# 개인정보 처리방침 (DeepDive)
+# 개인정보 처리방침 (Bookalpie)
 
-최종 수정일: 2026-02-10
+최종 수정일: 2026-02-23
 
 ## 1. 개요
 본 확장 프로그램은 사용자의 개인정보를 존중합니다. 당사는 사용자의 개인 데이터를 수집, 저장하거나 제3자와 공유하지 않습니다.

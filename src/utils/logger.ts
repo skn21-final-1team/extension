@@ -8,7 +8,7 @@ const IS_DEV = import.meta.env.MODE === 'development';
 type LogLevel = 'log' | 'info' | 'warn' | 'error';
 
 class Logger {
-  private prefix = '[DeepDive]';
+  private prefix = '[Bookalpie]';
 
   private shouldLog(level: LogLevel): boolean {
     // Production에서는 error만 허용

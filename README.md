@@ -1,4 +1,4 @@
-# 📚 DeepDive - Chrome Bookmark Manager Extension
+# 📚 Bookalpie - Chrome Bookmark Manager Extension
 
 Chrome 북마크를 Kalpie Notebook으로 전송하여 효율적으로 관리할 수 있는 확장 프로그램입니다.
 
@@ -43,7 +43,7 @@ pnpm run build
 
 ### 4. 사용 방법
 
-1. Chrome 툴바에서 DeepDive 아이콘 클릭
+1. Chrome 툴바에서 Bookalpie 아이콘 클릭
 2. **설정** 섹션에서 Kalpie Notebook에서 발급받은 **Sync Key** 입력
 3. 하단 **BOOKMARKS** 섹션에서 전송할 폴더를 체크
 4. **Notebook으로 전송 (Send)** 버튼 클릭

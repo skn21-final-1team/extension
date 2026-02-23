@@ -1,6 +1,6 @@
 /**
  * 메인 Popup 컴포넌트
- * DeepDive 북마크 사이드바 UI
+ * Bookalpie 북마크 사이드바 UI
  */
 
 import { useEffect } from 'react';
@@ -22,7 +22,7 @@ function App() {
       <header className="app-header">
         <h1 className="app-title">
           <img src={iconLogo} alt="Logo" className="app-logo" width="24" height="24" />
-          DeepDive
+          Bookalpie
         </h1>
       </header>
 

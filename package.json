@@ -1,7 +1,7 @@
 {
-  "name": "deepdive-extension",
+  "name": "bookalpie-extension",
   "version": "1.2.4",
-  "description": "DeepDive - Chrome 북마크를 Kalpie Notebook으로 전송하는 확장 프로그램",
+  "description": "Bookalpie - Chrome 북마크를 Kalpie Notebook으로 전송하는 확장 프로그램",
   "type": "module",
   "packageManager": "pnpm@8.0.0",
   "scripts": {
