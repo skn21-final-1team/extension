@@ -1,6 +1,6 @@
 /**
  * 메인 Popup 컴포넌트
- * NotebookLM 스타일 북마크 사이드바 UI
+ * DeepDive 북마크 사이드바 UI
  */
 
 import { useEffect } from 'react';
@@ -10,7 +10,7 @@ import { Settings } from '../components/Settings/Settings';
 import { Sidebar } from '../components/Sidebar/Sidebar';
 
 function App() {
-  const { loadBookmarks, isLoading, error } = useBookmarkStore();
+  const { loadBookmarks, isLoading } = useBookmarkStore();
 
   // 컴포넌트 마운트 시 북마크 로드
   useEffect(() => {
@@ -22,15 +22,13 @@ function App() {
       <header className="app-header">
         <h1 className="app-title">
           <img src={iconLogo} alt="Logo" className="app-logo" width="24" height="24" />
-          히히bookmark
+          DeepDive
         </h1>
       </header>
 
       <main className="app-main">
         {/* 설정 및 가져오기 UI */}
         <Settings />
-
-        {error && <div className="error-banner">{error}</div>}
 
         {isLoading ? (
           <div className="loading">

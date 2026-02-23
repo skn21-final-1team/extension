@@ -1,136 +1,149 @@
-import { useState, useEffect } from 'react';
-import { apiService } from '../../services/apiService';
+
 import { useBookmarkStore } from '../../store/bookmarkStore';
+import { useConsent } from './hooks/use-consent';
+import { useSync } from './hooks/use-sync';
 
+import './Settings.css';
 
+/**
+ * 북마크 동기화 및 개인정보 보호 동의를 제어하는 설정 컴포넌트입니다.
+ * 비즈니스 로직은 커스텀 훅으로 위임하여 UI 렌더링에만 집중합니다.
+ */
 export const Settings = () => {
-  const { syncToServer } = useBookmarkStore();
+  const { selectedIds, selectedFolderIds, bookmarks } = useBookmarkStore();
   
-  const [apiKey, setApiKey] = useState('');
-  const [isImporting, setIsImporting] = useState(false);
-  const [message, setMessage] = useState('');
+  // ✅ 기능 단위로 분리된 커스텀 훅 사용
+  const { 
+    showConsent, 
+    setShowConsent, 
+    hasConsent, 
+    handleConsent, 
+    requestConsent 
+  } = useConsent();
 
-  // API 키 변경 시 apiService에 반영 (메모리에만 보관, 팝업 닫으면 사라짐)
-  useEffect(() => {
-    apiService.setApiKey(apiKey);
-  }, [apiKey]);
+  const {
+    syncKey,
+    setSyncKey,
+    isImporting,
+    message,
+    startSync,
+    handleCancelSync,
+  } = useSync();
 
-  const handleImport = async () => {
-    if (!apiKey) {
-      setMessage('API 키를 먼저 입력해주세요.');
+  // 선택된 총 북마크 개수 계산 (직접 Set size 사용)
+  const totalSelectedUrls = selectedIds.size;
+
+  /** 
+   * 전송 버튼 클릭 핸들러 
+   * 동의 여부를 먼저 확인한 뒤 동기화 로직을 트리거합니다.
+   */
+  const handleImportClick = () => {
+    if (!hasConsent) {
+      requestConsent();
       return;
     }
-
-    // 선택된 것이 없어도 전체를 보낼지 여부는 정책에 따라 다름.
-    // 현재 Store 구현은 전체를 보냄. (선택 로직 무시)
-    // if (selectedIds.size === 0) { ... } 
-
-    setIsImporting(true);
-    setMessage('Notebook으로 전송 중...');
-
-    try {
-      await syncToServer();
-      
-      // 스토어의 에러 상태 확인
-      const currentError = useBookmarkStore.getState().error;
-      if (currentError) {
-        setMessage(`실패: ${currentError}`);
-      } else {
-        setMessage('성공적으로 전송했습니다!');
-      }
-    } catch (error) {
-       const msg = error instanceof Error ? error.message : '알 수 없는 오류';
-       setMessage(`오류 발생: ${msg}`);
-    } finally {
-      setIsImporting(false);
-    }
+    // 동의가 완료되었으면 동기화 진행
+    startSync();
   };
 
   return (
-    <div className="settings-panel">
-      <h3>설정</h3>
-      
-      <div className="input-group">
-        <label>Notebook API Key</label>
-        <div className="input-row">
-            <input 
-            type="password" 
-            value={apiKey} 
-            onChange={(e) => setApiKey(e.target.value)}
-            placeholder="API 키를 입력하세요"
+    <>
+      <div className="settings-panel">
+        <h3>설정</h3>
+
+        {/* Sync Key 입력 섹션 */}
+        <div className="input-group">
+          <label>Sync Key</label>
+          <div className="input-row">
+            <input
+              type="text"
+              value={syncKey}
+              onChange={(e) => setSyncKey(e.target.value)}
+              placeholder="Kalpie Notebook에서 발급받은 Key 입력"
+              disabled={isImporting} // 전송 중 비활성화
             />
+          </div>
+          <p className="help-text">💡 Kalpie Notebook에서 Key를 발급받아 입력하세요.</p>
+        </div>
+
+        <hr />
+
+        {/* 선택된 폴더 요약 섹션 */}
+        <div className="selected-folders-info">
+          <label>
+            선택된 폴더 <span className="badge">{selectedFolderIds.size}개</span>
+          </label>
+          
+          <div className="selection-stats">
+            <span>총 포함된 북마크: <strong>{totalSelectedUrls}</strong>개</span>
+          </div>
+
+          {selectedFolderIds.size === 0 ? (
+            <p className="info-text">하단 목록에서 전송할 폴더를 체크해주세요</p>
+          ) : (
+            <div className="selected-folders-list">
+              {bookmarks
+                .filter(folder => selectedFolderIds.has(folder.id))
+                .map(folder => (
+                  <div key={folder.id} className="selected-folder-item">
+                    📁 {folder.name}
+                  </div>
+                ))}
+            </div>
+          )}
+        </div>
+
+        {/* 액션 버튼 섹션 */}
+        <div className="action-group">
+          {/* 전송 중일 때 취소 버튼 표시 */}
+          {isImporting ? (
+            <button
+              className="cancel-btn-compact"
+              onClick={handleCancelSync}
+            >
+              취소
+            </button>
+          ) : (
+            <button
+              className="import-btn"
+              onClick={handleImportClick}
+              disabled={!syncKey || selectedIds.size === 0}
+            >
+              Notebook으로 전송 (Send)
+            </button>
+          )}
+          
+          {/* 상태 메시지 렌더링 */}
+          {message.text && (
+              <div className={`status-message ${message.type}`}>
+                  {message.text}
+              </div>
+          )}
         </div>
       </div>
 
-      <hr />
-
-      <div className="action-group">
-        <button 
-          className="import-btn" 
-          onClick={handleImport} 
-          disabled={isImporting || !apiKey}
-        >
-          {isImporting ? '전송 중...' : 'Notebook으로 전송 (Send)'}
-        </button>
-        {message && <p className="status-message">{message}</p>}
-      </div>
-
-      <style>{`
-        .settings-panel {
-          padding: 6px 10px;
-          background: #f9f9f9;
-          border-bottom: 1px solid #eee;
-          flex-shrink: 0;
-        }
-        .settings-panel h3 {
-          font-size: 11px;
-          margin-bottom: 4px;
-        }
-        .settings-panel hr {
-          margin: 4px 0;
-          border: none;
-          border-top: 1px solid #eee;
-        }
-        .input-group {
-          margin-bottom: 4px;
-        }
-        .input-group label {
-          display: block;
-          margin-bottom: 2px;
-          font-weight: 500;
-          font-size: 10px;
-        }
-        .input-row {
-            display: flex;
-            gap: 4px;
-        }
-        .input-row input {
-            flex: 1;
-            padding: 3px 6px;
-            border: 1px solid #ddd;
-            border-radius: 3px;
-            font-size: 11px;
-        }
-        .import-btn {
-          width: 100%;
-          padding: 4px 6px;
-          background: #4285f4;
-          color: white;
-          border: none;
-          border-radius: 3px;
-          cursor: pointer;
-          font-size: 11px;
-        }
-        .import-btn:disabled {
-          background: #ccc;
-        }
-        .status-message {
-          margin-top: 4px;
-          font-size: 10px;
-          color: #666;
-          text-align: center;
-        }
-      `}</style>
-    </div>
+      {/* 개인정보 동의 모달 */}
+        {showConsent && (
+        <div className="consent-overlay" onClick={() => setShowConsent(false)}>
+          <div className="consent-modal" onClick={(e) => e.stopPropagation()}>
+            <div className="consent-icon">🔒</div>
+            <h2 className="consent-title">개인정보 보호 안내</h2>
+            <p className="consent-text">
+              이 확장프로그램은 사용자가 직접 선택한 북마크만 Kalpie Notebook에 저장합니다.
+              <br />
+              <br />
+              <strong>✓ 선택한 북마크만 전송</strong>
+              <br />
+              <strong>✓ 언제든지 자유롭게 삭제 가능</strong>
+              <br />
+              <strong>✓ 안전한 통신망(HTTPS)을 통한 전송</strong>
+            </p>
+            <button className="import-btn consent-btn" onClick={handleConsent}>
+              동의하고 계속하기
+            </button>
+          </div>
+        </div>
+      )}
+    </>
   );
 };

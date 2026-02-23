@@ -1,8 +1,7 @@
-import { useMemo, useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import {
   DndContext,
   DragEndEvent,
-  DragOverEvent,
   useDroppable,
   closestCenter,
   PointerSensor,
@@ -37,17 +36,17 @@ const filterBookmarks = (
 
   return items
     .map((folder) => {
-      const filteredUrls = folder.urls.filter(
+      const filteredUrls = (folder.urls || []).filter(
         (url) =>
-          url.title.toLowerCase().includes(lowerQuery) ||
-          url.url.toLowerCase().includes(lowerQuery)
+          (url.title || '').toLowerCase().includes(lowerQuery) ||
+          (url.url || '').toLowerCase().includes(lowerQuery)
       );
 
       const filteredSubFolders = folder.folders
         ? filterBookmarks(folder.folders, query)
         : [];
 
-      const isFolderNameMatch = folder.name.toLowerCase().includes(lowerQuery);
+      const isFolderNameMatch = (folder.name || '').toLowerCase().includes(lowerQuery);
 
       const hasMatches =
         filteredUrls.length > 0 ||
@@ -67,8 +66,8 @@ const filterBookmarks = (
 };
 
 // 개별 폴더 노드 컴포넌트 (Droppable + SortableContext 적용)
-function FolderNode({ folder, depth }: { folder: BookmarkFolder; depth: number }) {
-  const { expandedFolderIds, toggleFolder, searchQuery, deleteFolder } = useBookmarkStore();
+const FolderNode = React.memo(({ folder, depth }: { folder: BookmarkFolder; depth: number }) => {
+  const { expandedFolderIds, toggleFolder, searchQuery, deleteFolder, selectedFolderIds, toggleFolderForSync } = useBookmarkStore();
   const [showActions, setShowActions] = useState(false);
   const [showUrlEditor, setShowUrlEditor] = useState(false);
 
@@ -111,6 +110,18 @@ function FolderNode({ folder, depth }: { folder: BookmarkFolder; depth: number }
         onMouseEnter={() => setShowActions(true)}
         onMouseLeave={() => setShowActions(false)}
       >
+        {/* 폴더 선택 체크박스 */}
+        <input
+          type="checkbox"
+          className="folder-checkbox"
+          checked={selectedFolderIds.has(folder.id)}
+          onChange={(e) => {
+            e.stopPropagation();
+            toggleFolderForSync(folder.id);
+          }}
+          title="이 폴더를 Notebook에 전송"
+        />
+
         <button
           className={`folder-header ${isExpanded ? 'expanded' : ''}`}
           onClick={() => toggleFolder(folder.id)}
@@ -181,10 +192,10 @@ function FolderNode({ folder, depth }: { folder: BookmarkFolder; depth: number }
 
     </li>
   );
-}
+});
 
 // 트리 리스트 (재귀 호출용)
-function FolderTreeList({ items, depth }: { items: BookmarkFolderList; depth: number }) {
+const FolderTreeList = React.memo(({ items, depth }: { items: BookmarkFolderList; depth: number }) => {
   const { searchQuery } = useBookmarkStore();
 
   const filteredItems = useMemo(
@@ -199,7 +210,7 @@ function FolderTreeList({ items, depth }: { items: BookmarkFolderList; depth: nu
       ))}
     </ul>
   );
-}
+});
 
 // 트리에서 폴더 ID로 해당 폴더의 URL 목록에서 인덱스를 찾는 헬퍼
 const findBookmarkIndex = (
@@ -230,9 +241,7 @@ export function FolderTree({ items, depth = 0, isRoot = false }: FolderTreeProps
     })
   );
 
-  const handleDragOver = (_event: DragOverEvent) => {
-    // 향후 드래그 중 시각적 피드백 추가 가능
-  };
+
 
   const handleDragEnd = async (event: DragEndEvent) => {
     const { active, over } = event;
@@ -290,7 +299,6 @@ export function FolderTree({ items, depth = 0, isRoot = false }: FolderTreeProps
       <DndContext
         sensors={sensors}
         collisionDetection={closestCenter}
-        onDragOver={handleDragOver}
         onDragEnd={handleDragEnd}
       >
         <FolderTreeList items={items} depth={depth} />

@@ -64,12 +64,18 @@ export interface ApiResponse<T> {
   error?: string
 }
 
-// 백엔드 전송용 트리 구조 (Backend: schemas/extension.py ExtensionBookmarkNode 대응)
+// 백엔드 전송용 트리 구조 (Backend: schemas/directory.py BookmarkFromExtension 대응)
 export interface ExtensionBookmarkNode {
-  id: string
+  id: number
   title: string
   url?: string | null
   children: ExtensionBookmarkNode[]
+}
+
+// 백엔드 sync key 발급 응답 (Backend: schemas/directory.py DirectorySyncKeyResponse 대응)
+export interface DirectorySyncKeyResponse {
+  sync_key: string
+  expires_at: string
 }
 
 // ============================================

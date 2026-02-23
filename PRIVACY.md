@@ -1,4 +1,4 @@
-# Privacy Policy for 히히bookmark (HiHi Bookmark)
+# Privacy Policy for DeepDive
 
 Last updated: 2026-02-10
 
@@ -21,7 +21,7 @@ If you have any questions about this privacy policy, please contact us via the C
 
 ---
 
-# 개인정보 처리방침 (히히bookmark)
+# 개인정보 처리방침 (DeepDive)
 
 최종 수정일: 2026-02-10
 

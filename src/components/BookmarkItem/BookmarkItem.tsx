@@ -3,7 +3,7 @@
  * 개별 북마크 표시 (체크박스, 파비콘, 태그)
  */
 
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import type { BookmarkUrl } from '../../types/bookmark';
@@ -18,7 +18,7 @@ interface BookmarkItemProps {
   parentId: string;
 }
 
-export function BookmarkItem({ bookmark, parentId }: BookmarkItemProps) {
+export const BookmarkItem = React.memo(({ bookmark, parentId }: BookmarkItemProps) => {
   const { selectedIds, toggleSelect, deleteBookmark } = useBookmarkStore();
   const [showActions, setShowActions] = useState(false);
   const [showEditor, setShowEditor] = useState(false);
@@ -154,4 +154,4 @@ export function BookmarkItem({ bookmark, parentId }: BookmarkItemProps) {
       )}
     </>
   );
-}
+});

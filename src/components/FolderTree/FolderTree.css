@@ -68,11 +68,22 @@
   display: flex;
   align-items: center;
   position: relative;
+  gap: 8px;
 }
 
 .folder-header-wrapper .folder-header {
   flex: 1;
   min-width: 0;
+}
+
+/* 폴더 체크박스 */
+.folder-checkbox {
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+  margin-left: 4px;
+  flex-shrink: 0;
+  accent-color: var(--primary-color, #3b82f6);
 }
 
 /* 폴더 액션 버튼 */

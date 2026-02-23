@@ -1,13 +1,22 @@
 import { create } from 'zustand';
 import { bookmarkService } from '../services/bookmarkService';
 import { apiService } from '../services/apiService';
-import type {
-  BookmarkFolderList,
-} from '../types/bookmark';
+import type { BookmarkFolderList } from '../types/bookmark';
+
+// ✅ 분리된 유틸리티 함수 임포트
+import {
+  collectUrlIds,
+  collectFolderUrlIds,
+  findParentFolderIds,
+  getSubFolderIds,
+  filterBySelectedIds, // ✅ URL 단위 필터링 함수
+  transformToExtensionNode,
+} from './store-utils';
 
 interface BookmarkState {
   bookmarks: BookmarkFolderList;
   selectedIds: Set<string>;
+  selectedFolderIds: Set<string>; // 폴더 단위 선택 (전송용)
   expandedFolderIds: Set<string>;
   isLoading: boolean;
   syncProgress: number;
@@ -17,6 +26,7 @@ interface BookmarkState {
   loadBookmarks: () => Promise<void>;
   toggleSelect: (id: string) => void;
   toggleSelectFolder: (folderId: string) => void; // 폴더 선택 (하위 URL 전체)
+  toggleFolderForSync: (folderId: string) => void; // 폴더 단위 선택 (전송용)
   selectAll: () => void;
   deselectAll: () => void;
   toggleFolder: (id: string) => void;
@@ -33,94 +43,30 @@ interface BookmarkState {
     changes: { title?: string; url?: string }
   ) => Promise<void>;
   deleteBookmark: (id: string) => Promise<void>;
+  deleteSelectedBookmarks: () => Promise<void>;
   moveBookmark: (
     id: string,
     destination: { parentId?: string; index?: number }
   ) => Promise<void>;
   createFolder: (title: string, parentId?: string) => Promise<void>;
   deleteFolder: (id: string) => Promise<void>;
-  syncToServer: () => Promise<void>;
+  syncToServer: (syncKey: string) => Promise<void>;
+  
+  // ✅ 전송 취소용 상태 및 메서드
+  syncAbortController: AbortController | null;
+  cancelSync: () => void;
 }
-
-// 재귀적으로 모든 URL ID 수집
-const collectUrlIds = (list: BookmarkFolderList): string[] => {
-  let ids: string[] = [];
-  for (const item of list) {
-    // 폴더면 재귀 호출
-    if (item.folders) {
-      ids = [...ids, ...collectUrlIds(item.folders)];
-    }
-    // URL이면 ID 수집
-    if (item.urls) {
-      ids = [...ids, ...item.urls.map(u => u.id)];
-    }
-  }
-  return ids;
-};
-
-// 특정 폴더의 모든 하위 URL ID 수집
-const collectFolderUrlIds = (
-  bookmarks: BookmarkFolderList,
-  folderId: string
-): string[] => {
-  for (const folder of bookmarks) {
-    if (folder.id === folderId) {
-      // 해당 폴더 찾음
-      const urlIds = folder.urls?.map(u => u.id) || [];
-      const subFolderIds = folder.folders ? collectUrlIds(folder.folders) : [];
-      return [...urlIds, ...subFolderIds];
-    }
-    // 하위 폴더에서 재귀 검색
-    if (folder.folders) {
-      const result = collectFolderUrlIds(folder.folders, folderId);
-      if (result.length > 0) return result;
-    }
-  }
-  return [];
-};
-
-
-
-// ExtensionBookmarkNode로 변환하는 헬퍼 함수
-const transformToExtensionNode = (
-  list: BookmarkFolderList
-): import('../types/bookmark').ExtensionBookmarkNode[] => {
-  return list.map(item => {
-    const node: import('../types/bookmark').ExtensionBookmarkNode = {
-      id: item.id,
-      title: item.name || (item as any).title || 'No Title', // 폴더는 name, URL은 title
-      children: []
-    };
-
-    if (item.urls) {
-      // URL 아이템 처리
-      item.urls.forEach(u => {
-        node.children.push({
-          id: u.id,
-          title: u.title,
-          url: u.url,
-          children: []
-        });
-      });
-    }
-
-    if (item.folders) {
-      // 하위 폴더 재귀 처리
-      node.children = [...node.children, ...transformToExtensionNode(item.folders)];
-    }
-
-    return node;
-  });
-};
 
 export const useBookmarkStore = create<BookmarkState>((set, get) => ({
   bookmarks: [], // 초기값: 빈 배열 (BookmarkFolder[])
   selectedIds: new Set(),
+  selectedFolderIds: new Set(), // 폴더 단위 선택
   expandedFolderIds: new Set(),
   isLoading: false,
   syncProgress: 0,
   searchQuery: '',
   error: null,
+  syncAbortController: null, // ✅ 초기값
 
   loadBookmarks: async () => {
     set({ isLoading: true, error: null });
@@ -135,15 +81,25 @@ export const useBookmarkStore = create<BookmarkState>((set, get) => ({
   },
 
   toggleSelect: (id: string) => {
-    set((state) => {
-      const newSelected = new Set(state.selectedIds);
-      if (newSelected.has(id)) {
-        newSelected.delete(id);
-      } else {
-        newSelected.add(id);
+    const { bookmarks, selectedIds, selectedFolderIds } = get();
+    const newSelectedIds = new Set(selectedIds);
+    const newSelectedFolders = new Set(selectedFolderIds);
+
+    if (newSelectedIds.has(id)) {
+      // URL 체크 해제
+      newSelectedIds.delete(id);
+
+      // 부모 폴더들도 체크 해제 (재귀적으로 모든 조상 폴더)
+      const parentIds = findParentFolderIds(bookmarks, id);
+      if (parentIds) {
+        parentIds.forEach(folderId => newSelectedFolders.delete(folderId));
       }
-      return { selectedIds: newSelected };
-    });
+    } else {
+      // URL 체크
+      newSelectedIds.add(id);
+    }
+
+    set({ selectedIds: newSelectedIds, selectedFolderIds: newSelectedFolders });
   },
 
   toggleSelectFolder: (folderId: string) => {
@@ -168,6 +124,32 @@ export const useBookmarkStore = create<BookmarkState>((set, get) => ({
 
       return { selectedIds: newSelected };
     });
+  },
+
+  toggleFolderForSync: (folderId: string) => {
+    const { bookmarks, selectedFolderIds, selectedIds } = get();
+
+    const newSelectedFolders = new Set(selectedFolderIds);
+    const newSelectedIds = new Set(selectedIds);
+
+    // 해당 폴더의 모든 하위 URL ID 수집
+    const folderUrlIds = collectFolderUrlIds(bookmarks, folderId);
+    // 해당 폴더의 모든 하위 폴더 ID 수집
+    const subFolderIds = getSubFolderIds(bookmarks, folderId);
+
+    if (newSelectedFolders.has(folderId)) {
+      // 폴더 체크 해제 → 하위 폴더 & URL도 체크 해제
+      newSelectedFolders.delete(folderId);
+      subFolderIds.forEach(id => newSelectedFolders.delete(id));
+      folderUrlIds.forEach(id => newSelectedIds.delete(id));
+    } else {
+      // 폴더 체크 → 하위 폴더 & URL도 체크
+      newSelectedFolders.add(folderId);
+      subFolderIds.forEach(id => newSelectedFolders.add(id));
+      folderUrlIds.forEach(id => newSelectedIds.add(id));
+    }
+
+    set({ selectedFolderIds: newSelectedFolders, selectedIds: newSelectedIds });
   },
 
   selectAll: () => {
@@ -195,6 +177,7 @@ export const useBookmarkStore = create<BookmarkState>((set, get) => ({
     set({ searchQuery: query });
   },
 
+  // ... 생략된 CRUD 메서드 (addBookmark, updateBookmark 등) ...
   addBookmark: async (title: string, url: string, parentId?: string) => {
     set({ isLoading: true });
     try {
@@ -245,6 +228,26 @@ export const useBookmarkStore = create<BookmarkState>((set, get) => ({
     }
   },
 
+  deleteSelectedBookmarks: async () => {
+    const { selectedIds, loadBookmarks } = get();
+    if (selectedIds.size === 0) return;
+    
+    set({ isLoading: true });
+    try {
+      // 선택된 ID 배열을 순회하며 모두 삭제
+      const deletePromises = Array.from(selectedIds).map(id => bookmarkService.remove(id));
+      await Promise.allSettled(deletePromises);
+      
+      set({ selectedIds: new Set() }); // 선택 목록 비우기
+      await loadBookmarks(); // 서버 최신화
+    } catch (error) {
+      const message = error instanceof Error ? error.message : '일괄 삭제 중 오류 발생';
+      set({ error: message });
+    } finally {
+      set({ isLoading: false });
+    }
+  },
+
   moveBookmark: async (
     id: string,
     destination: { parentId?: string; index?: number }
@@ -289,20 +292,37 @@ export const useBookmarkStore = create<BookmarkState>((set, get) => ({
     }
   },
 
-  syncToServer: async () => {
-    const { bookmarks } = get();
-    // 선택된 것이 없어도 전체를 보낼지, 아니면 막을지는 정책 결정.
-    // 여기서는 일단 진행.
-    
-    set({ isLoading: true, syncProgress: 0 });
+  syncToServer: async (syncKey: string) => {
+    const { bookmarks, selectedIds } = get();
+
+    if (selectedIds.size === 0) {
+      set({ error: '전송할 북마크를 선택해주세요.' });
+      return;
+    }
+
+    // ✅ 새로운 AbortController 생성
+    const abortController = new AbortController();
+
+    set({ 
+      isLoading: true, 
+      syncProgress: 0, 
+      error: null,
+      syncAbortController: abortController // ✅ 저장
+    });
 
     try {
-        // 전체 북마크 트리를 백엔드 포맷으로 변환
-        const extensionNodes = transformToExtensionNode(bookmarks);
-        
-        const response = await apiService.syncBookmarks(extensionNodes, (progress) => {
+        const selectedNodes = filterBySelectedIds(bookmarks, selectedIds);
+        const extensionNodes = transformToExtensionNode(selectedNodes);
+
+        // ✅ abortSignal 전달
+        const response = await apiService.syncBookmarks(
+          syncKey, 
+          extensionNodes, 
+          (progress) => {
             set({ syncProgress: progress });
-        });
+          },
+          abortController.signal // ✅ 취소 신호 전달
+        );
 
         if (!response.success) {
             throw new Error(response.error || '동기화 실패');
@@ -312,7 +332,26 @@ export const useBookmarkStore = create<BookmarkState>((set, get) => ({
        const message = error instanceof Error ? error.message : '동기화 오류';
        set({ error: message });
     } finally {
-      set({ isLoading: false, syncProgress: 0 });
+      set({ 
+        isLoading: false, 
+        syncProgress: 0,
+        syncAbortController: null // ✅ 초기화
+      });
+    }
+  },
+
+  // ✅ 전송 취소 메서드
+  cancelSync: () => {
+    const { syncAbortController } = get();
+    
+    if (syncAbortController) {
+      syncAbortController.abort(); // ✅ 전송 취소
+      set({ 
+        syncAbortController: null,
+        isLoading: false,
+        syncProgress: 0,
+        error: '전송이 취소되었습니다.'
+      });
     }
   },
 }));

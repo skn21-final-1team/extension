@@ -59,21 +59,88 @@ export const getAllBookmarks = async (): Promise<BookmarkFolderList> => {
 
       // 루트 노드의 children이 실제 북마크
       const rootChildren = tree[0]?.children || [];
-      const bookmarks = rootChildren.map((node) => {
-        const item = convertToBookmark(node);
-        // 최상위 레벨이 URL인 경우 가상 폴더로 감싸거나 처리 필요하지만
-        // 일단 폴더만 반환하거나, 타입에 맞게 처리
-        if ('url' in item && !('folders' in item)) {
-          // 최상위 URL을 위한 '기타' 폴더 생성?
-          // Frontend 구조상 최상위는 BookmarkFolderList이므로 폴더여야 함.
-          // 여기서 임의로 폴더로 감싸주는 로직이 필요할 수 있음.
-          // 하지만 Chrome 북마크 바, 기타 북마크 등은 이미 폴더임.
-          return null;
-        }
-        return item as BookmarkFolder;
-      }).filter((item): item is BookmarkFolder => item !== null);
+      console.log('--- CHROME BOOKMARK TREE ---', tree);
+      console.log('--- ROOT CHILDREN ---', rootChildren);
+      const bookmarks: BookmarkFolder[] = [];
+      const orphanUrls: BookmarkUrl[] = [];
 
-      resolve(bookmarks);
+      rootChildren.forEach((node) => {
+        const item = convertToBookmark(node);
+
+        // 폴더인 경우 그대로 추가
+        if ('folders' in item || ('urls' in item && !('url' in item))) {
+          bookmarks.push(item as BookmarkFolder);
+        }
+        // 최상위 URL인 경우 (드물지만 루트에 바로 존재하는 URL 등)
+        else if ('url' in item) {
+          orphanUrls.push(item as BookmarkUrl);
+        }
+      });
+
+      // 단일 북마크(orphanUrls)가 존재할 경우 처리
+      if (orphanUrls.length > 0) {
+        // 크롬 브라우저 기본 제공 '기타 북마크' 찾기 (보통 id: '2', title: 'Other Bookmarks' 또는 '기타 북마크')
+        // Node의 특징을 파악하여 가장 가능성 높은 폴더에 병합
+        let targetFolderIndex = bookmarks.findIndex(
+          b => b.id === '2' || b.name === '기타 북마크' || b.name === 'Other Bookmarks'
+        );
+
+        // 기본 제공 기타 북마크가 배열 내에 없다면, 맨 마지막 폴더를 선택하거나 새로 생성
+        if (targetFolderIndex === -1 && bookmarks.length > 0) {
+           targetFolderIndex = bookmarks.length - 1; 
+        }
+
+        if (targetFolderIndex >= 0) {
+          // 찾은 폴더에 추가
+          bookmarks[targetFolderIndex].urls = [
+            ...(bookmarks[targetFolderIndex].urls || []),
+            ...orphanUrls
+          ];
+        } else {
+           // 어떠한 폴더도 없는 아주 예외적인 상황에서만 생성
+           bookmarks.push({
+             id: 'orphan-urls',
+             name: '기타 북마크',
+             isExpanded: false,
+             folders: [],
+             urls: orphanUrls,
+           });
+        }
+      }
+
+      // 최상위 폴더 중복 방지: 동일 이름(예: '모바일 북마크')의 폴더가 여러 개인 경우 병합 (크롬 자체 버그 대비)
+      const mergedMap = new Map<string, BookmarkFolder>();
+      
+      bookmarks.forEach((folder) => {
+        const existing = mergedMap.get(folder.name);
+        if (existing) {
+          // 이름이 같은 기존 폴더가 있으면 자식들 추가
+          // 단, 중복된 항목이 또 들어가지 않도록 id를 기준으로 Set이나 단순 배열 병합 시 중복 체크
+          const currentUrls = existing.urls || [];
+          const currentFolders = existing.folders || [];
+
+          (folder.urls || []).forEach(url => {
+            if (!currentUrls.some(u => u.id === url.id)) {
+              currentUrls.push(url);
+            }
+          });
+
+          (folder.folders || []).forEach(f => {
+             if (!currentFolders.some(cf => cf.id === f.id)) {
+                currentFolders.push(f);
+             }
+          });
+          
+          existing.urls = currentUrls;
+          existing.folders = currentFolders;
+        } else {
+          // Map에 없으면 이름 기준으로 새로 저장
+          // 얕은 복사 방지를 위해 새 객체로 할당
+          mergedMap.set(folder.name, { ...folder, urls: [...(folder.urls || [])], folders: [...(folder.folders || [])] });
+        }
+      });
+
+      resolve(Array.from(mergedMap.values()));
     });
   });
 };
@@ -218,7 +285,7 @@ export const createFolder = async (
         if ('folders' in item) {
             resolve(item as BookmarkFolder);
         } else {
-             // Should not happen for folder creation
+             // 폴더 생성 시 이 분기에 도달하지 않아야 함
              reject(new Error("Failed to create folder"));
         }
       }

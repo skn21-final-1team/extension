@@ -26,11 +26,8 @@ const flattenFolders = (
   return result;
 };
 
-// 서버 동기화 기능 활성화 여부 (환경 변수)
-const ENABLE_SYNC = import.meta.env.VITE_ENABLE_SYNC === 'true';
-
 export function ActionBar() {
-  const { selectedIds, selectAll, deselectAll, syncToServer, isLoading, createFolder, bookmarks } =
+  const { selectedIds, selectAll, deselectAll, createFolder, bookmarks } =
     useBookmarkStore();
   const [showEditor, setShowEditor] = useState(false);
   const [showFolderModal, setShowFolderModal] = useState(false);
@@ -38,22 +35,6 @@ export function ActionBar() {
   const [folderParentId, setFolderParentId] = useState('');
 
   const folderOptions = useMemo(() => flattenFolders(bookmarks), [bookmarks]);
-
-  const handleSync = async () => {
-    if (selectedIds.size === 0) {
-      alert('동기화할 북마크를 선택해주세요.');
-      return;
-    }
-
-    // 동의 확인
-    const confirmed = confirm(
-      `선택한 ${selectedIds.size}개의 북마크를 서버에 동기화하시겠습니까?\n저장된 데이터는 암호화되어 보관됩니다.`
-    );
-
-    if (confirmed) {
-      await syncToServer();
-    }
-  };
 
   const handleCreateFolder = async () => {
     if (!folderName.trim()) {
@@ -72,9 +53,23 @@ export function ActionBar() {
         {/* 선택 버튼 */}
         <div className="action-bar-left">
           {selectedIds.size > 0 ? (
-            <button className="btn btn-ghost" onClick={deselectAll}>
-              선택 해제
-            </button>
+            <>
+              <button className="btn btn-ghost" onClick={deselectAll}>
+                선택 해제
+              </button>
+              <button 
+                className="btn btn-ghost btn-danger" 
+                onClick={async () => {
+                  if (confirm(`선택한 ${selectedIds.size}개의 항목을 삭제하시겠습니까?`)) {
+                    await useBookmarkStore.getState().deleteSelectedBookmarks();
+                  }
+                }}
+                title="선택 항목 삭제"
+                style={{ color: 'var(--error-color)' }}
+              >
+                삭제
+              </button>
+            </>
           ) : (
             <button className="btn btn-ghost" onClick={selectAll}>
               전체 선택
@@ -97,16 +92,6 @@ export function ActionBar() {
           >
             ➕ URL 추가
           </button>
-          {/* 서버 동기화 버튼 (선택적) */}
-          {ENABLE_SYNC && (
-            <button
-              className="btn btn-primary"
-              onClick={handleSync}
-              disabled={isLoading || selectedIds.size === 0}
-            >
-              {isLoading ? '동기화 중...' : '🔄 동기화'}
-            </button>
-          )}
         </div>
       </div>
 

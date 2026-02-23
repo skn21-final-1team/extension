@@ -1,8 +1,9 @@
 {
-  "name": "bookmark-extension",
-  "version": "1.0.0",
-  "description": "NotebookLM 스타일 북마크 관리 Chrome 확장프로그램",
+  "name": "deepdive-extension",
+  "version": "1.2.4",
+  "description": "DeepDive - Chrome 북마크를 Kalpie Notebook으로 전송하는 확장 프로그램",
   "type": "module",
+  "packageManager": "pnpm@8.0.0",
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
@@ -22,6 +23,7 @@
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "@vitejs/plugin-react": "^4.2.1",
+    "terser": "^5.46.0",
     "typescript": "^5.3.3",
     "vite": "^5.0.12"
   }

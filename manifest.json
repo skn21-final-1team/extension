@@ -1,13 +1,20 @@
 {
   "manifest_version": 3,
-  "name": "히히bookmark",
-  "version": "1.2.3",
-  "description": "Chrome 북마크를 효율적으로 관리하고 구조화할 수 있는 확장 프로그램",
+  "name": "DeepDive",
+  "version": "1.2.4",
+  "description": "Chrome 북마크를 효율적으로 관리하고 구조화할 수 있는 확장 프로그램입니다. Kalpie와 함께 사용해주세요.",
+  "author": "DeepDive Team",
   "permissions": [
     "bookmarks",
     "storage"
   ],
-  "host_permissions": [],
+  "host_permissions": [
+    "http://localhost/*",
+    "https://*/*"
+  ],
+  "content_security_policy": {
+    "extension_pages": "script-src 'self'; object-src 'self'"
+  },
   "icons": {
     "16": "icons/icon16.png",
     "48": "icons/icon48.png",
@@ -15,7 +22,7 @@
   },
   "action": {
     "default_popup": "src/popup/index.html",
-    "default_title": "히히bookmark",
+    "default_title": "DeepDive - 북마크 관리",
     "default_icon": {
       "16": "icons/icon16.png",
       "48": "icons/icon48.png",
@@ -25,5 +32,6 @@
   "background": {
     "service_worker": "src/background/index.ts",
     "type": "module"
-  }
+  },
+  "homepage_url": "https://github.com/skn21-final-1team/extension.git"
 }

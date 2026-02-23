@@ -1,6 +1,7 @@
 import { useState, useMemo } from 'react';
 import { useBookmarkStore } from '../../store/bookmarkStore';
 import type { BookmarkFolderList } from '../../types/bookmark';
+import { logger } from '../../utils/logger';
 import './BookmarkEditor.css';
 
 interface BookmarkEditorProps {
@@ -46,13 +47,6 @@ export function BookmarkEditor({ onClose, editBookmark, defaultParentId }: Bookm
 
   // 폴더 리스트 생성
   const folderOptions = useMemo(() => flattenFolders(bookmarks), [bookmarks]);
-
-  // parentId가 없을 때(추가 시) 기본값 설정: 첫 번째 폴더 (보통 북마크바)
-  if (!parentId && folderOptions.length > 0) {
-      // 하지만 state update를 렌더링 중에 하면 안 되므로 초기값으로 안 들어갔으면
-      // user가 선택하게 두거나, useEffect로 설정.
-      // 여기서는 그냥 select value에서 fallback 처리
-  }
 
   const validateUrl = (url: string): boolean => {
     try {
@@ -107,8 +101,9 @@ export function BookmarkEditor({ onClose, editBookmark, defaultParentId }: Bookm
       }
       onClose();
     } catch (err) {
-      console.error(err);
-      setError('저장에 실패했습니다.');
+      logger.error('북마크 저장 실패:', err);
+      const userMessage = logger.getUserMessage(err);
+      setError(userMessage);
     } finally {
       setIsSubmitting(false);
     }
