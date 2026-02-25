@@ -1,0 +1,17 @@
+/* 액션 바 스타일 */
+
+.action-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--spacing-sm); /* md(12px) -> sm(8px)로 축소 */
+  background-color: var(--bg-secondary);
+  border-top: 1px solid var(--border-color);
+  flex-shrink: 0;
+}
+
+.action-bar-left,
+.action-bar-right {
+  display: flex;
+  gap: var(--spacing-sm);
+}

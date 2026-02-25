@@ -1,0 +1,189 @@
+/* 폴더 트리 스타일 */
+
+.folder-tree {
+  list-style: none;
+  padding-left: calc(var(--depth, 0) * 16px);
+  margin: 0;
+}
+
+/* 폴더 노드 */
+.folder-node,
+.bookmark-node {
+  margin: 2px 0;
+}
+
+/* 폴더 헤더 */
+.folder-header {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  width: 100%;
+  padding: var(--spacing-xs) var(--spacing-sm);
+  background: transparent;
+  border: none;
+  border-radius: var(--border-radius-sm);
+  cursor: pointer;
+  text-align: left;
+  transition: background-color var(--transition-fast);
+}
+
+.folder-header:hover {
+  background-color: var(--bg-hover);
+}
+
+.folder-header.expanded {
+  background-color: var(--bg-hover);
+}
+
+.folder-chevron {
+  font-size: 8px;
+  color: var(--text-muted);
+  width: 12px;
+  transition: transform var(--transition-fast);
+}
+
+.folder-icon {
+  font-size: var(--font-size-sm);
+}
+
+.folder-title {
+  flex: 1;
+  font-size: var(--font-size-sm);
+  color: var(--text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.folder-count {
+  font-size: var(--font-size-xs);
+  color: var(--text-muted);
+  background-color: var(--bg-hover);
+  padding: 1px 6px;
+  border-radius: 10px;
+}
+
+/* 폴더 헤더 래퍼 (액션 버튼 포함) */
+.folder-header-wrapper {
+  display: flex;
+  align-items: center;
+  position: relative;
+  gap: 8px;
+}
+
+.folder-header-wrapper .folder-header {
+  flex: 1;
+  min-width: 0;
+}
+
+/* 폴더 체크박스 */
+.folder-checkbox {
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+  margin-left: 4px;
+  flex-shrink: 0;
+  accent-color: var(--primary-color, #3b82f6);
+}
+
+/* 폴더 액션 버튼 */
+.folder-actions {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  padding-right: var(--spacing-xs);
+  flex-shrink: 0;
+}
+
+.folder-action-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border: none;
+  background: transparent;
+  border-radius: var(--border-radius-sm);
+  cursor: pointer;
+  color: var(--text-muted);
+  padding: 0;
+  transition: all var(--transition-fast);
+}
+
+.folder-action-btn:hover {
+  background-color: var(--bg-hover);
+  color: var(--text-primary);
+}
+
+.folder-action-btn-danger:hover {
+  color: #ef4444;
+  background-color: #fef2f2;
+}
+
+/* 하위 항목 컨테이너 */
+.folder-children {
+  margin-left: 8px; /* 들여쓰기 조정 */
+  border-left: 1px solid var(--border-color);
+}
+
+/* 폴더 삭제 확인 */
+.delete-confirm {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-xs) var(--spacing-sm);
+  margin: 2px 0;
+  background-color: #fef2f2;
+  border: 1px solid #fecaca;
+  border-radius: var(--border-radius-sm);
+  font-size: var(--font-size-xs);
+}
+
+.delete-confirm-text {
+  color: #991b1b;
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.delete-confirm-actions {
+  display: flex;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+.delete-confirm-btn {
+  padding: 2px 8px;
+  border: none;
+  border-radius: var(--border-radius-sm);
+  cursor: pointer;
+  font-size: var(--font-size-xs);
+}
+
+.delete-confirm-yes {
+  background-color: #ef4444;
+  color: white;
+}
+
+.delete-confirm-yes:hover {
+  background-color: #dc2626;
+}
+
+.delete-confirm-no {
+  background-color: var(--bg-hover);
+  color: var(--text-primary);
+}
+
+.delete-confirm-no:hover {
+  background-color: var(--border-color);
+}
+
+/* 북마크 리스트 */
+.bookmark-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
