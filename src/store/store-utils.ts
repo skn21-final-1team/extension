@@ -161,7 +161,7 @@ export const transformToExtensionNode = (
     const folderTitle = item.name || 'No Title';
 
     const node: import('../types/bookmark').ExtensionBookmarkNode = {
-      id: Number(item.id),
+      id: item.id,
       title: folderTitle,
       children: []
     };
@@ -169,7 +169,7 @@ export const transformToExtensionNode = (
     if (item.urls) {
       item.urls.forEach(u => {
         node.children.push({
-          id: Number(u.id),
+          id: u.id,
           title: u.title,
           url: u.url,
           children: []

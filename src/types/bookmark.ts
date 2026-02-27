@@ -66,7 +66,7 @@ export interface ApiResponse<T> {
 
 // 백엔드 전송용 트리 구조 (Backend: schemas/directory.py BookmarkFromExtension 대응)
 export interface ExtensionBookmarkNode {
-  id: number
+  id: string | number
   title: string
   url?: string | null
   children: ExtensionBookmarkNode[]
