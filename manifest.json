@@ -6,7 +6,8 @@
   "author": "Bookalpie Team",
   "permissions": [
     "bookmarks",
-    "storage"
+    "storage",
+    "tabs"
   ],
   "host_permissions": [
     "http://localhost/*",

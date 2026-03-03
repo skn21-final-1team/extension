@@ -1,17 +1,75 @@
-/* 액션 바 스타일 */
+/* 액션 바 스타일 — Dark Pro */
 
 .action-bar {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: var(--spacing-sm); /* md(12px) -> sm(8px)로 축소 */
-  background-color: var(--bg-secondary);
-  border-top: 1px solid var(--border-color);
+  padding: 0 var(--spacing-sm);
+  height: 42px;
+  background: var(--bg-base);
+  border-top: 1px solid var(--border-subtle);
   flex-shrink: 0;
+  position: relative;
+}
+
+/* 상단 글로우 라인 */
+.action-bar::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(139, 92, 246, 0.2) 30%,
+    rgba(167, 139, 250, 0.3) 50%,
+    rgba(139, 92, 246, 0.2) 70%,
+    transparent 100%
+  );
 }
 
 .action-bar-left,
 .action-bar-right {
   display: flex;
-  gap: var(--spacing-sm);
+  align-items: center;
+  gap: 2px;
+}
+
+/* 아이콘 전용 버튼 */
+.action-icon-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border: none;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: background 0.12s ease, color 0.12s ease, box-shadow 0.12s ease;
+  padding: 0;
+  flex-shrink: 0;
+}
+
+.action-icon-btn:hover {
+  background: var(--bg-hover);
+  color: var(--accent-hover);
+}
+
+.action-icon-btn--danger:hover {
+  color: var(--error-color);
+  background: rgba(248, 113, 113, 0.1);
+}
+
+.action-icon-btn--primary {
+  color: var(--accent-color);
+}
+
+.action-icon-btn--primary:hover {
+  background: var(--accent-bg);
+  color: var(--accent-hover);
+  box-shadow: 0 0 10px var(--accent-glow);
 }

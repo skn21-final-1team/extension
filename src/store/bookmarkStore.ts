@@ -11,6 +11,7 @@ import {
   getSubFolderIds,
   filterBySelectedIds, // ✅ URL 단위 필터링 함수
   transformToExtensionNode,
+  collectSubFolderIds,
 } from './store-utils';
 
 interface BookmarkState {
@@ -50,6 +51,9 @@ interface BookmarkState {
   ) => Promise<void>;
   createFolder: (title: string, parentId?: string) => Promise<void>;
   deleteFolder: (id: string) => Promise<void>;
+  renameFolder: (id: string, title: string) => Promise<void>;
+  expandAll: () => void;
+  collapseAll: () => void;
   syncToServer: (syncKey: string) => Promise<void>;
   
   // ✅ 전송 취소용 상태 및 메서드
@@ -153,12 +157,14 @@ export const useBookmarkStore = create<BookmarkState>((set, get) => ({
   },
 
   selectAll: () => {
-    const allIds = collectUrlIds(get().bookmarks);
-    set({ selectedIds: new Set(allIds) });
+    const { bookmarks } = get();
+    const allIds = collectUrlIds(bookmarks);
+    const allFolderIds = collectSubFolderIds(bookmarks);
+    set({ selectedIds: new Set(allIds), selectedFolderIds: new Set(allFolderIds) });
   },
 
   deselectAll: () => {
-    set({ selectedIds: new Set() });
+    set({ selectedIds: new Set(), selectedFolderIds: new Set() });
   },
 
   toggleFolder: (id: string) => {
@@ -290,6 +296,25 @@ export const useBookmarkStore = create<BookmarkState>((set, get) => ({
     } finally {
       set({ isLoading: false });
     }
+  },
+
+  renameFolder: async (id: string, title: string) => {
+    try {
+      await bookmarkService.update(id, { title });
+      await get().loadBookmarks();
+    } catch (error) {
+      const message = error instanceof Error ? error.message : '폴더 이름 변경 실패';
+      set({ error: message });
+    }
+  },
+
+  expandAll: () => {
+    const allFolderIds = collectSubFolderIds(get().bookmarks);
+    set({ expandedFolderIds: new Set(allFolderIds) });
+  },
+
+  collapseAll: () => {
+    set({ expandedFolderIds: new Set() });
   },
 
   syncToServer: async (syncKey: string) => {

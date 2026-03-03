@@ -14,11 +14,11 @@ import type {
 /**
  * Chrome 북마크 노드를 앱 북마크 타입으로 변환 (재귀)
  */
-const convertToBookmark = (node: ChromeBookmarkNode): BookmarkItem => {
+const convertToBookmark = (node: ChromeBookmarkNode, parentId?: string): BookmarkItem => {
   const isFolder = !node.url;
 
   if (isFolder) {
-    const children = node.children?.map(convertToBookmark) || [];
+    const children = node.children?.map((child) => convertToBookmark(child, node.id)) || [];
     const folders = children.filter((child): child is BookmarkFolder =>
       'folders' in child
     );
@@ -30,6 +30,7 @@ const convertToBookmark = (node: ChromeBookmarkNode): BookmarkItem => {
       id: node.id,
       name: node.title,
       isExpanded: false, // 기본값
+      parentId,
       folders,
       urls,
     };

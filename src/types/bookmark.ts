@@ -18,6 +18,7 @@ export interface BookmarkFolder {
   id: string
   name: string
   isExpanded: boolean
+  parentId?: string
   folders?: BookmarkFolder[]
   urls: BookmarkUrl[]
 }

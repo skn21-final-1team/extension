@@ -1,9 +1,11 @@
 /**
  * 메인 Popup 컴포넌트
- * Bookalpie 북마크 사이드바 UI
+ * - 메인: 북마크 관리 (Sidebar 전체 차지)
+ * - 부가: API 동기화 (헤더 아이콘 클릭 시 모달로 오픈)
  */
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
+import { Cloud, Sun, Moon } from 'lucide-react';
 import iconLogo from '../assets/icon48.png';
 import { useBookmarkStore } from '../store/bookmarkStore';
 import { Settings } from '../components/Settings/Settings';
@@ -11,6 +13,22 @@ import { Sidebar } from '../components/Sidebar/Sidebar';
 
 function App() {
   const { loadBookmarks, isLoading } = useBookmarkStore();
+  // Settings(API 동기화) 모달 열림 여부
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+
+  // 테마 상태 — localStorage에서 초기화하고 즉시 적용 (플리커 방지)
+  const [theme, setTheme] = useState<'dark' | 'light'>(() => {
+    const saved = localStorage.getItem('theme') as 'dark' | 'light' | null;
+    const t = saved ?? 'dark';
+    document.documentElement.dataset.theme = t;
+    return t;
+  });
+
+  // 테마 변경 시 DOM + localStorage 동기화
+  useEffect(() => {
+    document.documentElement.dataset.theme = theme;
+    localStorage.setItem('theme', theme);
+  }, [theme]);
 
   // 컴포넌트 마운트 시 북마크 로드
   useEffect(() => {
@@ -20,23 +38,48 @@ function App() {
   return (
     <div className="app">
       <header className="app-header">
+        {/* 로고 영역 */}
         <h1 className="app-title">
           <img src={iconLogo} alt="Logo" className="app-logo" width="24" height="24" />
-          Bookalpie
+          <span className="app-logo-text">Bookalpie</span>
         </h1>
+
+        {/* 헤더 우측 액션 버튼 */}
+        <div className="app-header-actions">
+          {/* 테마 토글 버튼 */}
+          <button
+            className="header-icon-btn"
+            onClick={() => setTheme((t) => (t === 'dark' ? 'light' : 'dark'))}
+            title="테마 전환"
+          >
+            {theme === 'dark' ? <Sun size={16} /> : <Moon size={16} />}
+          </button>
+
+          {/* 동기화(Sync) 버튼 — 클릭 시 Settings 모달 오픈 */}
+          <button
+            className={`header-icon-btn ${isSettingsOpen ? 'active' : ''}`}
+            onClick={() => setIsSettingsOpen((prev) => !prev)}
+            title="Notebook으로 동기화"
+          >
+            <Cloud size={18} />
+          </button>
+        </div>
       </header>
 
       <main className="app-main">
-        {/* 설정 및 가져오기 UI */}
-        <Settings />
-
         {isLoading ? (
           <div className="loading">
             <div className="loading-spinner"></div>
             <span>북마크 불러오는 중...</span>
           </div>
         ) : (
+          /* 메인 기능: 북마크 트리 전체 화면 차지 */
           <Sidebar />
+        )}
+
+        {/* 부가 기능: Settings 모달 (오버레이) */}
+        {isSettingsOpen && (
+          <Settings onClose={() => setIsSettingsOpen(false)} />
         )}
       </main>
     </div>
