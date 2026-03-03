@@ -1,6 +1,6 @@
 # Privacy Policy for Bookalpie
 
-Last updated: 2026-02-23
+Last updated: 2026-03-03
 
 ## 1. Introduction
 This extension respects your privacy. We do not collect, store, or share your personal data with third parties.
@@ -10,6 +10,7 @@ This extension requires the following permissions to function:
 
 - **bookmarks**: To read, create, modify, and delete bookmarks as requested by you.
 - **storage**: To save your preferences and settings locally on your device.
+- **tabs**: To read the URL and title of the currently active tab, used solely for the "Save Current Tab" feature.
 
 ## 3. Data Usage
 - **Bookmarks**: Your bookmark data is processed locally within your browser. 
@@ -23,7 +24,7 @@ If you have any questions about this privacy policy, please contact us via the C
 
 # 개인정보 처리방침 (Bookalpie)
 
-최종 수정일: 2026-02-23
+최종 수정일: 2026-03-03
 
 ## 1. 개요
 본 확장 프로그램은 사용자의 개인정보를 존중합니다. 당사는 사용자의 개인 데이터를 수집, 저장하거나 제3자와 공유하지 않습니다.
@@ -33,6 +34,7 @@ If you have any questions about this privacy policy, please contact us via the C
 
 - **bookmarks**: 사용자의 요청에 따라 북마크를 읽고, 생성하고, 수정하고, 삭제하기 위해 필요합니다.
 - **storage**: 사용자의 환경 설정 및 기본 설정을 기기에 로컬로 저장하기 위해 필요합니다.
+- **tabs**: 현재 활성 탭의 URL과 제목을 읽기 위해 필요합니다. "현재 탭 저장" 기능에만 사용됩니다.
 
 ## 3. 데이터 사용
 - **북마크**: 귀하의 북마크 데이터는 브라우저 내에서 로컬로 처리됩니다.

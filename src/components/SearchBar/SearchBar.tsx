@@ -53,19 +53,21 @@ export function SearchBar({ onCollapseAll, onExpandAll }: SearchBarProps) {
       {onCollapseAll && (
         <button
           onClick={onCollapseAll}
-          title="전체 접기"
+          title={searchQuery ? '검색 중에는 사용할 수 없습니다' : '전체 접기'}
+          disabled={!!searchQuery}
           style={{
             background: 'none',
             border: 'none',
-            cursor: 'pointer',
+            cursor: searchQuery ? 'default' : 'pointer',
             padding: '3px',
             color: 'var(--text-muted)',
             display: 'flex',
             alignItems: 'center',
             borderRadius: '4px',
             flexShrink: 0,
+            opacity: searchQuery ? 0.35 : 1,
           }}
-          onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.background = 'var(--bg-hover)'; }}
+          onMouseEnter={(e) => { if (!searchQuery) (e.currentTarget as HTMLButtonElement).style.background = 'var(--bg-hover)'; }}
           onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.background = 'none'; }}
         >
           <ChevronsUp size={14} />
@@ -74,19 +76,21 @@ export function SearchBar({ onCollapseAll, onExpandAll }: SearchBarProps) {
       {onExpandAll && (
         <button
           onClick={onExpandAll}
-          title="전체 펼치기"
+          title={searchQuery ? '검색 중에는 사용할 수 없습니다' : '전체 펼치기'}
+          disabled={!!searchQuery}
           style={{
             background: 'none',
             border: 'none',
-            cursor: 'pointer',
+            cursor: searchQuery ? 'default' : 'pointer',
             padding: '3px',
             color: 'var(--text-muted)',
             display: 'flex',
             alignItems: 'center',
             borderRadius: '4px',
             flexShrink: 0,
+            opacity: searchQuery ? 0.35 : 1,
           }}
-          onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.background = 'var(--bg-hover)'; }}
+          onMouseEnter={(e) => { if (!searchQuery) (e.currentTarget as HTMLButtonElement).style.background = 'var(--bg-hover)'; }}
           onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.background = 'none'; }}
         >
           <ChevronsDown size={14} />

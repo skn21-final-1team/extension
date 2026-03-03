@@ -10,7 +10,6 @@
     "tabs"
   ],
   "host_permissions": [
-    "http://localhost/*",
     "https://*/*"
   ],
   "content_security_policy": {

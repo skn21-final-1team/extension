@@ -31,6 +31,7 @@ export default defineConfig(({ mode }) => ({
     rollupOptions: {
       input: {
         popup: 'src/popup/index.html',
+        forms: 'src/forms/index.html',
       },
       output: {
         manualChunks: {

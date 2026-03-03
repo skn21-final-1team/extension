@@ -3,7 +3,7 @@
  * 스타일은 BookmarkItem.css로 분리
  */
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { Pencil, Trash2, Globe } from 'lucide-react';
@@ -51,6 +51,12 @@ export const BookmarkItem = React.memo(
     const [showActions, setShowActions] = useState(false);
     const [showEditor, setShowEditor] = useState(false);
     const [faviconError, setFaviconError] = useState(false);
+    const [isDeleting, setIsDeleting] = useState(false);
+
+    // URL이 바뀌면 favicon 오류 상태 초기화
+    useEffect(() => {
+      setFaviconError(false);
+    }, [bookmark.url]);
 
     const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
       id: bookmark.id,
@@ -74,7 +80,12 @@ export const BookmarkItem = React.memo(
     const handleDelete = async (e: React.MouseEvent) => {
       e.stopPropagation();
       if (confirm(`"${bookmark.title}" 북마크를 삭제하시겠습니까?`)) {
-        await deleteBookmark(bookmark.id);
+        setIsDeleting(true);
+        try {
+          await deleteBookmark(bookmark.id);
+        } finally {
+          setIsDeleting(false);
+        }
       }
     };
 
@@ -86,7 +97,8 @@ export const BookmarkItem = React.memo(
     const handleTitleClick = (e: React.MouseEvent) => {
       e.stopPropagation();
       if (bookmark.url) {
-        chrome.tabs.create({ url: bookmark.url });
+        // Ctrl/Cmd+클릭: 백그라운드 탭, 일반 클릭: 활성 탭
+        chrome.tabs.create({ url: bookmark.url, active: !(e.ctrlKey || e.metaKey) });
       }
     };
 
@@ -174,6 +186,7 @@ export const BookmarkItem = React.memo(
                 className="icon-action-btn icon-action-btn--danger"
                 onClick={handleDelete}
                 title="삭제"
+                disabled={isDeleting}
               >
                 <Trash2 size={11} />
               </button>

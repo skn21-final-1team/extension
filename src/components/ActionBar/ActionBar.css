@@ -1,55 +1,42 @@
-/* 액션 바 스타일 — Dark Pro */
+/* 액션 바 */
 
 .action-bar {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 var(--spacing-sm);
-  height: 42px;
-  background: var(--bg-base);
+  padding: 0 var(--spacing-md);
+  height: 48px;
+  background: var(--bg-elevated);
   border-top: 1px solid var(--border-subtle);
   flex-shrink: 0;
-  position: relative;
-}
-
-/* 상단 글로우 라인 */
-.action-bar::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 1px;
-  background: linear-gradient(
-    90deg,
-    transparent 0%,
-    rgba(139, 92, 246, 0.2) 30%,
-    rgba(167, 139, 250, 0.3) 50%,
-    rgba(139, 92, 246, 0.2) 70%,
-    transparent 100%
-  );
 }
 
 .action-bar-left,
 .action-bar-right {
   display: flex;
   align-items: center;
-  gap: 2px;
+  gap: 4px;
 }
 
-/* 아이콘 전용 버튼 */
+.action-count {
+  font-size: 11px;
+  color: var(--text-muted);
+  padding: 0 2px;
+  letter-spacing: -0.2px;
+}
+
 .action-icon-btn {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 30px;
-  height: 30px;
+  width: 28px;
+  height: 28px;
   border: none;
   border-radius: 6px;
   background: transparent;
   color: var(--text-muted);
   cursor: pointer;
-  transition: background 0.12s ease, color 0.12s ease, box-shadow 0.12s ease;
+  transition: background 0.12s ease, color 0.12s ease;
   padding: 0;
   flex-shrink: 0;
 }
@@ -64,12 +51,67 @@
   background: rgba(248, 113, 113, 0.1);
 }
 
-.action-icon-btn--primary {
-  color: var(--accent-color);
+.action-label-btn {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 0 10px;
+  height: 28px;
+  border-radius: 6px;
+  border: 1px solid var(--border-default);
+  background: var(--bg-card);
+  color: var(--text-secondary);
+  font-size: 11px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.12s ease;
+  white-space: nowrap;
+  font-family: var(--font-family);
 }
 
-.action-icon-btn--primary:hover {
+.action-label-btn:hover {
+  border-color: var(--border-strong);
+  color: var(--text-primary);
+  background: var(--bg-active);
+}
+
+.action-label-btn--primary {
+  border-color: rgba(139, 92, 246, 0.35);
+  color: var(--accent-color);
   background: var(--accent-bg);
+}
+
+.action-label-btn--primary:hover {
+  border-color: var(--accent-color);
   color: var(--accent-hover);
-  box-shadow: 0 0 10px var(--accent-glow);
+  background: rgba(139, 92, 246, 0.18);
+  box-shadow: 0 0 8px var(--accent-glow);
+}
+
+[data-theme="light"] .action-bar {
+  background: #f7f7f7;
+}
+
+[data-theme="light"] .action-label-btn {
+  background: #ffffff;
+  border-color: #e5e7eb;
+  color: #6b7280;
+}
+
+[data-theme="light"] .action-label-btn:hover {
+  background: #f3f4f6;
+  border-color: #d1d5db;
+  color: #111827;
+}
+
+[data-theme="light"] .action-label-btn--primary {
+  background: #f5f3ff;
+  border-color: rgba(124, 58, 237, 0.3);
+  color: #7c3aed;
+}
+
+[data-theme="light"] .action-label-btn--primary:hover {
+  background: #ede9fe;
+  border-color: #7c3aed;
+  box-shadow: none;
 }

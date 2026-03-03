@@ -59,7 +59,10 @@ const filterBookmarks = (
         ? filterBookmarks(folder.folders, query)
         : [];
       const isFolderNameMatch = (folder.name || '').toLowerCase().includes(lowerQuery);
-      if (filteredUrls.length > 0 || filteredSubFolders.length > 0 || isFolderNameMatch) {
+      if (isFolderNameMatch) {
+        return folder; // 폴더명 매치 시 원본 그대로 반환 (내용 모두 표시)
+      }
+      if (filteredUrls.length > 0 || filteredSubFolders.length > 0) {
         return { ...folder, folders: filteredSubFolders, urls: filteredUrls } as BookmarkFolder;
       }
       return null;
@@ -106,6 +109,7 @@ const FolderNode = React.memo(({
   } = useBookmarkStore();
   const [showActions, setShowActions] = useState(false);
   const [showUrlEditor, setShowUrlEditor] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [editName, setEditName] = useState(folder.name);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -149,7 +153,12 @@ const FolderNode = React.memo(({
   const handleDeleteFolder = async (e: React.MouseEvent) => {
     e.stopPropagation();
     if (confirm(`"${folder.name}" 폴더를 삭제하시겠습니까?`)) {
-      await deleteFolder(folder.id);
+      setIsDeleting(true);
+      try {
+        await deleteFolder(folder.id);
+      } finally {
+        setIsDeleting(false);
+      }
     }
   };
 
@@ -269,6 +278,7 @@ const FolderNode = React.memo(({
               className="icon-action-btn icon-action-btn--danger"
               onClick={handleDeleteFolder}
               title="폴더 삭제"
+              disabled={isDeleting}
             >
               <Trash2 size={12} />
             </button>
@@ -364,7 +374,7 @@ function findSiblingFolders(
 }
 
 export function FolderTree({ items, depth = 0, isRoot = false }: FolderTreeProps) {
-  const { moveBookmark, loadBookmarks } = useBookmarkStore();
+  const { moveBookmark } = useBookmarkStore();
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 8 } })
   );
@@ -423,7 +433,6 @@ export function FolderTree({ items, depth = 0, isRoot = false }: FolderTreeProps
         parentId: overInfo.parentId,
         index: subFolderCount + overInfo.index,
       });
-      await loadBookmarks();
     }
   };
 

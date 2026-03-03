@@ -36,6 +36,15 @@ export const useSync = () => {
     };
   }, [isLoading, cancelSync]);
 
+  // Settings 패널이 닫힐 때(언마운트) 진행 중인 sync 취소
+  useEffect(() => {
+    return () => {
+      if (useBookmarkStore.getState().isLoading) {
+        cancelSync();
+      }
+    };
+  }, [cancelSync]);
+
   /**
    * 전송 프로세스를 시작합니다.
    * 동기화를 실행하고 성공/실패 여부에 따라 UI 메시지를 세팅합니다.

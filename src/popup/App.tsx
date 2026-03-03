@@ -1,19 +1,18 @@
 /**
  * 메인 Popup 컴포넌트
  * - 메인: 북마크 관리 (Sidebar 전체 차지)
- * - 부가: API 동기화 (헤더 아이콘 클릭 시 모달로 오픈)
+ * - 부가: API 동기화 (헤더 아이콘 클릭 시 Sidebar 하단 패널로 오픈)
  */
 
 import { useEffect, useState } from 'react';
 import { Cloud, Sun, Moon } from 'lucide-react';
 import iconLogo from '../assets/icon48.png';
 import { useBookmarkStore } from '../store/bookmarkStore';
-import { Settings } from '../components/Settings/Settings';
 import { Sidebar } from '../components/Sidebar/Sidebar';
 
 function App() {
   const { loadBookmarks, isLoading } = useBookmarkStore();
-  // Settings(API 동기화) 모달 열림 여부
+  // Settings(API 동기화) 패널 열림 여부
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
 
   // 테마 상태 — localStorage에서 초기화하고 즉시 적용 (플리커 방지)
@@ -55,7 +54,7 @@ function App() {
             {theme === 'dark' ? <Sun size={16} /> : <Moon size={16} />}
           </button>
 
-          {/* 동기화(Sync) 버튼 — 클릭 시 Settings 모달 오픈 */}
+          {/* 동기화(Sync) 버튼 — 클릭 시 하단 패널 토글 */}
           <button
             className={`header-icon-btn ${isSettingsOpen ? 'active' : ''}`}
             onClick={() => setIsSettingsOpen((prev) => !prev)}
@@ -73,13 +72,11 @@ function App() {
             <span>북마크 불러오는 중...</span>
           </div>
         ) : (
-          /* 메인 기능: 북마크 트리 전체 화면 차지 */
-          <Sidebar />
-        )}
-
-        {/* 부가 기능: Settings 모달 (오버레이) */}
-        {isSettingsOpen && (
-          <Settings onClose={() => setIsSettingsOpen(false)} />
+          /* 메인 기능: 북마크 트리 + 하단 패널(폼/설정) */
+          <Sidebar
+            isSettingsOpen={isSettingsOpen}
+            onCloseSettings={() => setIsSettingsOpen(false)}
+          />
         )}
       </main>
     </div>

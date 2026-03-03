@@ -60,8 +60,6 @@ export const getAllBookmarks = async (): Promise<BookmarkFolderList> => {
 
       // 루트 노드의 children이 실제 북마크
       const rootChildren = tree[0]?.children || [];
-      console.log('--- CHROME BOOKMARK TREE ---', tree);
-      console.log('--- ROOT CHILDREN ---', rootChildren);
       const bookmarks: BookmarkFolder[] = [];
       const orphanUrls: BookmarkUrl[] = [];
 

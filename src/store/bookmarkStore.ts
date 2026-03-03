@@ -26,7 +26,6 @@ interface BookmarkState {
 
   loadBookmarks: () => Promise<void>;
   toggleSelect: (id: string) => void;
-  toggleSelectFolder: (folderId: string) => void; // 폴더 선택 (하위 URL 전체)
   toggleFolderForSync: (folderId: string) => void; // 폴더 단위 선택 (전송용)
   selectAll: () => void;
   deselectAll: () => void;
@@ -101,33 +100,20 @@ export const useBookmarkStore = create<BookmarkState>((set, get) => ({
     } else {
       // URL 체크
       newSelectedIds.add(id);
+
+      // 부모 폴더의 모든 URL이 선택 완료되면 폴더도 sync 선택에 복구
+      const parentIdsForAdd = findParentFolderIds(bookmarks, id);
+      if (parentIdsForAdd) {
+        parentIdsForAdd.forEach(folderId => {
+          const folderUrlIds = collectFolderUrlIds(bookmarks, folderId);
+          if (folderUrlIds.length > 0 && folderUrlIds.every(uid => newSelectedIds.has(uid))) {
+            newSelectedFolders.add(folderId);
+          }
+        });
+      }
     }
 
     set({ selectedIds: newSelectedIds, selectedFolderIds: newSelectedFolders });
-  },
-
-  toggleSelectFolder: (folderId: string) => {
-    const { bookmarks, selectedIds } = get();
-    const folderUrlIds = collectFolderUrlIds(bookmarks, folderId);
-
-    if (folderUrlIds.length === 0) return;
-
-    // 모든 하위 URL이 선택되어 있는지 확인
-    const allSelected = folderUrlIds.every(id => selectedIds.has(id));
-
-    set((state) => {
-      const newSelected = new Set(state.selectedIds);
-
-      if (allSelected) {
-        // 모두 선택되어 있으면 전체 해제
-        folderUrlIds.forEach(id => newSelected.delete(id));
-      } else {
-        // 하나라도 선택 안되어 있으면 전체 선택
-        folderUrlIds.forEach(id => newSelected.add(id));
-      }
-
-      return { selectedIds: newSelected };
-    });
   },
 
   toggleFolderForSync: (folderId: string) => {
@@ -237,15 +223,21 @@ export const useBookmarkStore = create<BookmarkState>((set, get) => ({
   deleteSelectedBookmarks: async () => {
     const { selectedIds, loadBookmarks } = get();
     if (selectedIds.size === 0) return;
-    
+
     set({ isLoading: true });
     try {
-      // 선택된 ID 배열을 순회하며 모두 삭제
-      const deletePromises = Array.from(selectedIds).map(id => bookmarkService.remove(id));
-      await Promise.allSettled(deletePromises);
-      
-      set({ selectedIds: new Set() }); // 선택 목록 비우기
-      await loadBookmarks(); // 서버 최신화
+      const results = await Promise.allSettled(
+        Array.from(selectedIds).map(id => bookmarkService.remove(id))
+      );
+
+      const failedCount = results.filter(r => r.status === 'rejected').length;
+
+      set({
+        selectedIds: new Set(),
+        selectedFolderIds: new Set(), // 연관된 폴더 sync 선택도 함께 초기화
+        ...(failedCount > 0 ? { error: `${failedCount}개 항목 삭제에 실패했습니다.` } : {}),
+      });
+      await loadBookmarks();
     } catch (error) {
       const message = error instanceof Error ? error.message : '일괄 삭제 중 오류 발생';
       set({ error: message });
