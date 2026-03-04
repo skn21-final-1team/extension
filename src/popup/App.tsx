@@ -5,7 +5,7 @@
  */
 
 import { useEffect, useState } from 'react';
-import { Cloud, Sun, Moon } from 'lucide-react';
+import { Cloud, Sun, Moon, X } from 'lucide-react';
 import iconLogo from '../assets/icon48.png';
 import { useBookmarkStore } from '../store/bookmarkStore';
 import { Sidebar } from '../components/Sidebar/Sidebar';
@@ -61,6 +61,15 @@ function App() {
             title="Notebook으로 동기화"
           >
             <Cloud size={18} />
+          </button>
+
+          {/* 팝업 닫기 버튼 */}
+          <button
+            className="header-icon-btn"
+            onClick={() => window.close()}
+            title="닫기"
+          >
+            <X size={16} />
           </button>
         </div>
       </header>

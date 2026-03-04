@@ -26,9 +26,15 @@ const convertToBookmark = (node: ChromeBookmarkNode, parentId?: string): Bookmar
       'url' in child && !('folders' in child)
     );
 
+    // Chrome '기타 북마크' 폴더(id: '2')를 '빠른 저장'으로 표시
+    const displayName =
+      (node.id === '2' || node.title === '기타 북마크' || node.title === 'Other Bookmarks')
+        ? '빠른 저장'
+        : node.title;
+
     const folder: BookmarkFolder = {
       id: node.id,
-      name: node.title,
+      name: displayName,
       isExpanded: false, // 기본값
       parentId,
       folders,
@@ -99,7 +105,7 @@ export const getAllBookmarks = async (): Promise<BookmarkFolderList> => {
            // 어떠한 폴더도 없는 아주 예외적인 상황에서만 생성
            bookmarks.push({
              id: 'orphan-urls',
-             name: '기타 북마크',
+             name: '빠른 저장',
              isExpanded: false,
              folders: [],
              urls: orphanUrls,

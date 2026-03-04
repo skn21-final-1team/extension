@@ -69,6 +69,7 @@ export const STORAGE_KEYS = {
   LAST_SYNC_TIME: 'lastSyncTime',
   API_URL: 'apiUrl',
   USER_SETTINGS: 'userSettings',
+  QUICK_SAVE_FOLDER: 'quickSaveFolder',
 } as const;
 
 export const storageService = {

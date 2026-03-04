@@ -11,6 +11,7 @@ import { ActionBar } from '../ActionBar/ActionBar';
 import { FormPanel, type FormPanelType } from '../FormPanel/FormPanel';
 import { Settings } from '../Settings/Settings';
 import { Icons } from '../Icons/Icons';
+import { useQuickSave } from '../../hooks/useQuickSave';
 
 // 서버 동기화 기능 활성화 여부
 const ENABLE_SYNC = import.meta.env.VITE_ENABLE_SYNC === 'true';
@@ -28,6 +29,7 @@ interface SidebarProps {
 export function Sidebar({ isSettingsOpen, onCloseSettings }: SidebarProps) {
   const { bookmarks, syncProgress, isLoading, expandAll, collapseAll } = useBookmarkStore();
   const [activeForm, setActiveForm] = useState<FormPanelType | null>(null);
+  const { folder: qsFolder, status: qsStatus, saveFolder: qsSaveFolder, clearFolder: qsClearFolder, quickSave: qsQuickSave } = useQuickSave();
 
   // Settings가 열리면 열려 있던 폼 닫기
   useEffect(() => {
@@ -97,11 +99,23 @@ export function Sidebar({ isSettingsOpen, onCloseSettings }: SidebarProps) {
       )}
 
       {/* 하단 액션 바 */}
-      <ActionBar onOpenPanel={openForm} />
+      <ActionBar
+        onOpenPanel={openForm}
+        quickSave={{ folder: qsFolder, status: qsStatus, quickSave: qsQuickSave }}
+        onOpenQuickSaveConfig={() => openForm('quickSaveConfig')}
+      />
 
       {/* 폼 패널 — 액션바 아래로 펼쳐짐 */}
       {activeForm && (
-        <FormPanel type={activeForm} onClose={closeForm} />
+        <FormPanel
+          type={activeForm}
+          onClose={closeForm}
+          quickSaveConfig={activeForm === 'quickSaveConfig' ? {
+            currentFolder: qsFolder,
+            onSave: qsSaveFolder,
+            onClear: qsClearFolder,
+          } : undefined}
+        />
       )}
 
       {/* Settings 패널 — 액션바 아래로 펼쳐짐 */}

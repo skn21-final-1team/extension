@@ -7,12 +7,20 @@ import { useState, useEffect, useMemo } from 'react';
 import { X, AlertCircle } from 'lucide-react';
 import { useBookmarkStore } from '../../store/bookmarkStore';
 import type { BookmarkFolder } from '../../types/bookmark';
+import type { QuickSaveFolder } from '../../hooks/useQuickSave';
 
-export type FormPanelType = 'folder' | 'saveTab' | 'addUrl';
+export type FormPanelType = 'folder' | 'saveTab' | 'addUrl' | 'quickSaveConfig';
+
+interface QuickSaveConfigProps {
+  currentFolder: QuickSaveFolder | null;
+  onSave: (folder: QuickSaveFolder) => void;
+  onClear: () => void;
+}
 
 interface FormPanelProps {
   type: FormPanelType;
   onClose: () => void;
+  quickSaveConfig?: QuickSaveConfigProps;
 }
 
 interface FolderOpt { id: string; name: string; level: number; }
@@ -211,13 +219,55 @@ function AddUrlForm({ folders, onClose }: { folders: FolderOpt[]; onClose: () =>
   );
 }
 
+// ── 빠른저장 폴더 설정 ──
+function QuickSaveConfigForm({ folders, onClose, config }: {
+  folders: FolderOpt[]; onClose: () => void; config: QuickSaveConfigProps;
+}) {
+  const [folderId, setFolderId] = useState(config.currentFolder?.id || (folders[0]?.id ?? ''));
+
+  useEffect(() => {
+    if (!folderId && folders.length > 0) setFolderId(folders[0].id);
+  }, [folders, folderId]);
+
+  const handleSave = () => {
+    const selected = folders.find((f) => f.id === folderId);
+    if (!selected) return;
+    config.onSave({ id: selected.id, name: selected.name });
+    onClose();
+  };
+
+  const handleClear = () => {
+    config.onClear();
+    onClose();
+  };
+
+  return (
+    <>
+      <div className="fp-row">
+        <div className="fp-field" style={{ flex: 1 }}>
+          <span className="fp-label">저장 폴더</span>
+          <FolderSelect value={folderId} onChange={setFolderId} folders={folders} />
+        </div>
+      </div>
+      <div className="fp-actions">
+        <button className="btn btn-secondary fp-btn" onClick={onClose}>취소</button>
+        {config.currentFolder && (
+          <button className="btn btn-secondary fp-btn" onClick={handleClear}>해제</button>
+        )}
+        <button className="btn btn-primary fp-btn" onClick={handleSave}>설정</button>
+      </div>
+    </>
+  );
+}
+
 const PANEL_TITLES: Record<FormPanelType, string> = {
   folder:  '📁 새 폴더 생성',
   saveTab: '📌 현재 탭 저장',
   addUrl:  '🔗 북마크 추가',
+  quickSaveConfig: '⚡ 빠른저장 폴더 설정',
 };
 
-export function FormPanel({ type, onClose }: FormPanelProps) {
+export function FormPanel({ type, onClose, quickSaveConfig }: FormPanelProps) {
   const { bookmarks } = useBookmarkStore();
   const folders = useMemo(() => flattenFolders(bookmarks), [bookmarks]);
 
@@ -231,6 +281,9 @@ export function FormPanel({ type, onClose }: FormPanelProps) {
         {type === 'folder'  && <FolderForm  folders={folders} onClose={onClose} />}
         {type === 'saveTab' && <SaveTabForm folders={folders} onClose={onClose} />}
         {type === 'addUrl'  && <AddUrlForm  folders={folders} onClose={onClose} />}
+        {type === 'quickSaveConfig' && quickSaveConfig && (
+          <QuickSaveConfigForm folders={folders} onClose={onClose} config={quickSaveConfig} />
+        )}
       </div>
     </div>
   );

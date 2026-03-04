@@ -4,22 +4,74 @@
  */
 
 import { useMemo } from 'react';
-import { Pin, FolderPlus, Link2, X, CheckSquare, Trash2 } from 'lucide-react';
+import { Pin, FolderPlus, Link2, X, CheckSquare, Trash2, Zap, Loader2, Check, AlertCircle } from 'lucide-react';
 import { useBookmarkStore } from '../../store/bookmarkStore';
 import type { FormPanelType } from '../FormPanel/FormPanel';
+import type { QuickSaveFolder, QuickSaveStatus } from '../../hooks/useQuickSave';
 import './ActionBar.css';
+
+interface QuickSaveProps {
+  folder: QuickSaveFolder | null;
+  status: QuickSaveStatus;
+  quickSave: () => void;
+}
 
 interface ActionBarProps {
   onOpenPanel: (type: FormPanelType) => void;
+  quickSave: QuickSaveProps;
+  onOpenQuickSaveConfig: () => void;
 }
 
-export function ActionBar({ onOpenPanel }: ActionBarProps) {
+export function ActionBar({ onOpenPanel, quickSave, onOpenQuickSaveConfig }: ActionBarProps) {
   const { selectedIds, selectedFolderIds, selectAll, deselectAll } = useBookmarkStore();
 
   const totalSelected = useMemo(
     () => selectedIds.size + selectedFolderIds.size,
     [selectedIds, selectedFolderIds]
   );
+
+  const qs = quickSave;
+
+  const renderQuickSaveBtn = () => {
+    if (!qs.folder) {
+      return (
+        <button className="action-label-btn" onClick={onOpenQuickSaveConfig} title="빠른저장 폴더 설정">
+          <Zap size={12} /> 빠른저장
+        </button>
+      );
+    }
+    switch (qs.status) {
+      case 'saving':
+        return (
+          <button className="action-label-btn" disabled>
+            <Loader2 size={12} className="animate-spin" /> 저장중...
+          </button>
+        );
+      case 'success':
+        return (
+          <button className="action-label-btn action-label-btn--success" disabled>
+            <Check size={12} /> 저장됨!
+          </button>
+        );
+      case 'error':
+        return (
+          <button className="action-label-btn action-label-btn--error" disabled>
+            <AlertCircle size={12} /> 실패
+          </button>
+        );
+      default:
+        return (
+          <button
+            className="action-label-btn"
+            onClick={qs.quickSave}
+            onContextMenu={(e) => { e.preventDefault(); onOpenQuickSaveConfig(); }}
+            title={`빠른저장 → ${qs.folder.name} (우클릭: 설정변경)`}
+          >
+            <Zap size={12} /> {qs.folder.name}
+          </button>
+        );
+    }
+  };
 
   return (
     <div className="action-bar">
@@ -50,6 +102,7 @@ export function ActionBar({ onOpenPanel }: ActionBarProps) {
       </div>
 
       <div className="action-bar-right">
+        {renderQuickSaveBtn()}
         <button className="action-label-btn" onClick={() => onOpenPanel('saveTab')} title="현재 탭 저장">
           <Pin size={12} /> 현재탭
         </button>
