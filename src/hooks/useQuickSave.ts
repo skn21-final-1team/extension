@@ -9,46 +9,40 @@ export interface QuickSaveFolder {
 
 export type QuickSaveStatus = 'idle' | 'saving' | 'success' | 'error';
 
-/** Chrome '기타 북마크' 폴더 이름을 '빠른 저장'으로 표시 */
-function displayName(name: string): string {
-  return (name === '기타 북마크' || name === 'Other Bookmarks') ? '빠른 저장' : name;
-}
-
 export function useQuickSave() {
   const [folder, setFolder] = useState<QuickSaveFolder | null>(null);
   const [status, setStatus] = useState<QuickSaveStatus>('idle');
 
-  // Load saved folder from storage on mount
+  // 마운트 시 저장된 폴더 로드 + 존재 여부 1회 검증
   useEffect(() => {
     chrome.storage.local.get(STORAGE_KEYS.QUICK_SAVE_FOLDER, (result) => {
       const saved = result[STORAGE_KEYS.QUICK_SAVE_FOLDER] as QuickSaveFolder | undefined;
-      if (saved) setFolder({ ...saved, name: displayName(saved.name) });
-    });
-  }, []);
+      if (!saved) return;
 
-  // Validate folder still exists when bookmarks change
-  useEffect(() => {
-    if (!folder) return;
-    const unsub = useBookmarkStore.subscribe(() => {
-      chrome.bookmarks.get(folder.id, (nodes) => {
+      // 저장된 폴더가 아직 Chrome에 존재하는지 확인
+      chrome.bookmarks.get(saved.id, (nodes) => {
         if (chrome.runtime.lastError || !nodes?.length) {
-          setFolder(null);
+          // 폴더가 삭제됐으면 저장값도 제거
           chrome.storage.local.remove(STORAGE_KEYS.QUICK_SAVE_FOLDER);
+        } else {
+          setFolder(saved);
         }
       });
     });
-    return unsub;
-  }, [folder]);
-
-  const saveFolder = useCallback((f: QuickSaveFolder) => {
-    const mapped = { ...f, name: displayName(f.name) };
-    setFolder(mapped);
-    chrome.storage.local.set({ [STORAGE_KEYS.QUICK_SAVE_FOLDER]: mapped });
   }, []);
 
-  const clearFolder = useCallback(() => {
+  const saveFolder = useCallback(async (f: QuickSaveFolder) => {
+    setFolder(f);
+    await new Promise<void>((resolve) => {
+      chrome.storage.local.set({ [STORAGE_KEYS.QUICK_SAVE_FOLDER]: f }, resolve);
+    });
+  }, []);
+
+  const clearFolder = useCallback(async () => {
     setFolder(null);
-    chrome.storage.local.remove(STORAGE_KEYS.QUICK_SAVE_FOLDER);
+    await new Promise<void>((resolve) => {
+      chrome.storage.local.remove(STORAGE_KEYS.QUICK_SAVE_FOLDER, resolve);
+    });
   }, []);
 
   const quickSave = useCallback(async () => {

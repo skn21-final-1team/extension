@@ -7,6 +7,7 @@ import { X, Link2, AlertCircle } from 'lucide-react';
 import { useBookmarkStore } from '../../store/bookmarkStore';
 import type { BookmarkFolderList } from '../../types/bookmark';
 import { logger } from '../../utils/logger';
+import './BookmarkEditor.css';
 
 interface BookmarkEditorProps {
   onClose: () => void;
@@ -54,7 +55,7 @@ export function BookmarkEditor({ onClose, editBookmark, defaultParentId }: Bookm
     try {
       if (isEditing) {
         await updateBookmark(editBookmark.id, { title, url });
-        if (targetParentId !== editBookmark.parentId) {
+        if (editBookmark.parentId && targetParentId !== editBookmark.parentId) {
           await moveBookmark(editBookmark.id, { parentId: targetParentId });
         }
       } else {

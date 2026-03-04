@@ -3,7 +3,7 @@
  * 메인 화면 전체를 차지하는 핵심 UI
  */
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useBookmarkStore } from '../../store/bookmarkStore';
 import { SearchBar } from '../SearchBar/SearchBar';
 import { FolderTree } from '../FolderTree/FolderTree';
@@ -12,6 +12,7 @@ import { FormPanel, type FormPanelType } from '../FormPanel/FormPanel';
 import { Settings } from '../Settings/Settings';
 import { Icons } from '../Icons/Icons';
 import { useQuickSave } from '../../hooks/useQuickSave';
+import './Sidebar.css';
 
 // 서버 동기화 기능 활성화 여부
 const ENABLE_SYNC = import.meta.env.VITE_ENABLE_SYNC === 'true';
@@ -29,6 +30,7 @@ interface SidebarProps {
 export function Sidebar({ isSettingsOpen, onCloseSettings }: SidebarProps) {
   const { bookmarks, syncProgress, isLoading, expandAll, collapseAll } = useBookmarkStore();
   const [activeForm, setActiveForm] = useState<FormPanelType | null>(null);
+  const [defaultFolderId, setDefaultFolderId] = useState<string | undefined>();
   const { folder: qsFolder, status: qsStatus, saveFolder: qsSaveFolder, clearFolder: qsClearFolder, quickSave: qsQuickSave } = useQuickSave();
 
   // Settings가 열리면 열려 있던 폼 닫기
@@ -36,19 +38,40 @@ export function Sidebar({ isSettingsOpen, onCloseSettings }: SidebarProps) {
     if (isSettingsOpen) setActiveForm(null);
   }, [isSettingsOpen]);
 
+  // FolderTree에서 + 버튼 클릭 시 addUrl 폼 열기
+  const handleOpenAddUrl = useCallback((e: Event) => {
+    const folderId = (e as CustomEvent).detail?.folderId;
+    onCloseSettings();
+    setDefaultFolderId(folderId);
+    setActiveForm('addUrl');
+  }, [onCloseSettings]);
+
+  useEffect(() => {
+    window.addEventListener('openAddUrl', handleOpenAddUrl);
+    return () => window.removeEventListener('openAddUrl', handleOpenAddUrl);
+  }, [handleOpenAddUrl]);
+
   const openForm = async (type: FormPanelType) => {
     onCloseSettings(); // 폼 열 때 Settings 닫기
+    setDefaultFolderId(undefined); // 기본 폴더 초기화
     if (type === 'saveTab') {
-      const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
-      if (!tab?.url) return;
-      await chrome.storage.local.set({
-        formTabData: { title: tab.title || tab.url, url: tab.url, favIconUrl: tab.favIconUrl },
-      });
+      try {
+        const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+        if (!tab?.url) return;
+        await chrome.storage.local.set({
+          formTabData: { title: tab.title || tab.url, url: tab.url, favIconUrl: tab.favIconUrl },
+        });
+      } catch {
+        // 탭 정보 저장 실패 시에도 폼은 열림
+      }
     }
     setActiveForm(type);
   };
 
-  const closeForm = () => setActiveForm(null);
+  const closeForm = () => {
+    setActiveForm(null);
+    setDefaultFolderId(undefined);
+  };
 
   const treeHeight = isSettingsOpen
     ? TREE_HEIGHT_WITH_SETTINGS
@@ -62,17 +85,10 @@ export function Sidebar({ isSettingsOpen, onCloseSettings }: SidebarProps) {
       <SearchBar onCollapseAll={collapseAll} onExpandAll={expandAll} />
 
       {/* 북마크 트리 — 폼/설정 열릴 때 높이 축소, 항상 스크롤 가능 */}
-      <div style={{
-        overflowY: 'auto',
-        maxHeight: treeHeight,
-        transition: 'max-height 0.2s ease',
-      }}>
+      <div className="sidebar-tree" style={{ maxHeight: treeHeight }}>
         {bookmarks.length === 0 ? (
-          <div
-            className="flex flex-col items-center justify-center gap-3"
-            style={{ color: 'var(--text-muted)', minHeight: '160px' }}
-          >
-            <span style={{ opacity: 0.5 }}>
+          <div className="sidebar-empty">
+            <span className="sidebar-empty-icon">
               <Icons.EmptyBox />
             </span>
             <p className="text-xs">북마크가 없습니다</p>
@@ -84,17 +100,8 @@ export function Sidebar({ isSettingsOpen, onCloseSettings }: SidebarProps) {
 
       {/* 동기화 진행률 (선택적 표시) */}
       {ENABLE_SYNC && isLoading && syncProgress > 0 && (
-        <div
-          className="relative mx-3 mb-1 rounded-full overflow-hidden"
-          style={{ height: 4, background: 'var(--border-color)' }}
-        >
-          <div
-            className="absolute inset-y-0 left-0 rounded-full transition-all"
-            style={{
-              width: `${syncProgress}%`,
-              background: 'var(--accent-color)',
-            }}
-          />
+        <div className="sidebar-progress">
+          <div className="sidebar-progress-bar" style={{ width: `${syncProgress}%` }} />
         </div>
       )}
 
@@ -110,6 +117,7 @@ export function Sidebar({ isSettingsOpen, onCloseSettings }: SidebarProps) {
         <FormPanel
           type={activeForm}
           onClose={closeForm}
+          defaultFolderId={defaultFolderId}
           quickSaveConfig={activeForm === 'quickSaveConfig' ? {
             currentFolder: qsFolder,
             onSave: qsSaveFolder,

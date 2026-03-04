@@ -10,12 +10,12 @@ interface SyncMessage {
  * 북마크를 서버로 전송하는 전체 통신 프로세스 및 UI 상태를 관리하는 훅입니다.
  */
 export const useSync = () => {
-  const { 
-    syncToServer, 
-    cancelSync, 
-    selectedIds, 
+  const {
+    syncToServer,
+    cancelSync,
+    selectedIds,
     isLoading,
-    syncProgress 
+    syncProgress
   } = useBookmarkStore();
 
   const [syncKey, setSyncKey] = useState('');
@@ -39,7 +39,7 @@ export const useSync = () => {
   // Settings 패널이 닫힐 때(언마운트) 진행 중인 sync 취소
   useEffect(() => {
     return () => {
-      if (useBookmarkStore.getState().isLoading) {
+      if (useBookmarkStore.getState().syncAbortController) {
         cancelSync();
       }
     };
@@ -47,13 +47,11 @@ export const useSync = () => {
 
   /**
    * 전송 프로세스를 시작합니다.
-   * 동기화를 실행하고 성공/실패 여부에 따라 UI 메시지를 세팅합니다.
    */
   const startSync = async () => {
-    // 1. 입력 검증
     if (!syncKey.trim()) {
       setMessage({ text: 'Key를 먼저 입력해주세요.', type: 'error' });
-      return false; // 필수값 누락
+      return false;
     }
 
     if (selectedIds.size === 0) {
@@ -61,20 +59,18 @@ export const useSync = () => {
       return false;
     }
 
-    // 2. 동기화 실행
     setIsImporting(true);
     setMessage({ text: 'Kalpie Notebook으로 안전하게 전송 중입니다...', type: 'info' });
 
     try {
-      await syncToServer(syncKey);
+      const success = await syncToServer(syncKey);
 
-      const latestError = useBookmarkStore.getState().error;
-      if (latestError) {
-        setMessage({ text: `전송 실패: ${latestError}`, type: 'error' });
+      if (!success) {
+        const latestError = useBookmarkStore.getState().error;
+        setMessage({ text: `전송 실패: ${latestError || '알 수 없는 오류'}`, type: 'error' });
         return false;
       } else {
-        setMessage({ text: '🎉 성공적으로 전송되었습니다!', type: 'success' });
-        // 일정 시간 후 성공 메시지를 초기화합니다.
+        setMessage({ text: '성공적으로 전송되었습니다!', type: 'success' });
         setTimeout(() => setMessage({ text: '', type: '' }), 5000);
         return true;
       }

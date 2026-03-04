@@ -1,154 +1,127 @@
-# 📚 Bookalpie - Chrome Bookmark Manager Extension
+# Bookalpie — Chrome Bookmark Manager Extension
 
 Chrome 북마크를 Kalpie Notebook으로 전송하여 효율적으로 관리할 수 있는 확장 프로그램입니다.
 
-## ✨ 주요 기능
+## 주요 기능
 
 ### 북마크 관리
-- ✅ **폴더 선택**: 북마크 폴더를 체크박스로 선택
-- ✅ **검색 기능**: 북마크 빠른 검색
-- ✅ **폴더 트리**: 계층적 폴더 구조 표시
-- ✅ **선택된 북마크 확인**: 전송할 북마크 개수 실시간 표시
+- **폴더 트리**: VS Code 스타일 계층적 폴더/북마크 트리
+- **드래그 앤 드롭**: 폴더·북마크 순서 변경, 다른 폴더로 이동 (dnd-kit)
+- **인라인 수정**: 폴더 더블클릭으로 이름 변경, 북마크 편집 미니 카드
+- **검색**: 폴더명·북마크 제목·URL 실시간 검색 필터
+- **전체 선택/해제**: 체크박스로 폴더 단위 또는 전체 선택
+- **현재 탭 저장**: 열린 탭을 원하는 폴더에 북마크로 저장
+- **퀵 세이브**: 지정 폴더에 한 번 클릭으로 북마크 저장
 
 ### Kalpie Notebook 연동
-- 🔑 **Sync Key 입력**: Kalpie Notebook에서 발급받은 키로 인증
-- 📤 **북마크 전송**: 선택한 폴더의 북마크를 Notebook으로 전송
-- 🔒 **개인정보 보호**: 사용자 동의 후 선택한 북마크만 전송
-- ✅ **전송 취소**: 전송 중 언제든지 취소 가능
+- **Sync Key 인증**: Notebook에서 발급받은 키로 안전하게 인증
+- **선택 전송**: 체크한 폴더·북마크만 Notebook으로 전송
+- **전송 취소**: 진행 중 언제든 취소 가능
+- **개인정보 보호**: 사용자 동의 후 선택한 항목만 전송
 
-## 🚀 빠른 시작
-
-### 1. 의존성 설치
+## 빠른 시작
 
 ```bash
+# 1. 의존성 설치
 pnpm install
+
+# 2. 빌드
+pnpm build
+
+# 3. Chrome에 로드
+# chrome://extensions → 개발자 모드 → 압축해제된 확장 프로그램 로드 → dist/ 선택
 ```
 
-> **참고**: npm을 사용해도 되지만, 프로젝트는 pnpm을 권장합니다.
-
-### 2. 빌드
-
-```bash
-pnpm run build
-```
-
-빌드 결과물은 `dist/` 폴더에 생성됩니다.
-
-### 3. Chrome에 설치
-
-1. Chrome 브라우저에서 `chrome://extensions` 접속
-2. 우측 상단 **개발자 모드** 활성화
-3. **압축해제된 확장 프로그램을 로드합니다** 클릭
-4. `extension/dist` 폴더 선택
-
-### 4. 사용 방법
-
-1. Chrome 툴바에서 Bookalpie 아이콘 클릭
-2. **설정** 섹션에서 Kalpie Notebook에서 발급받은 **Sync Key** 입력
-3. 하단 **BOOKMARKS** 섹션에서 전송할 폴더를 체크
-4. **Notebook으로 전송 (Send)** 버튼 클릭
-5. 개인정보 보호 동의 후 전송 진행
-
-## 📁 프로젝트 구조
+## 프로젝트 구조
 
 ```
-extension/
-├── manifest.json              # Chrome Extension 설정
-├── package.json               # 의존성 및 스크립트
-├── vite.config.ts             # Vite 빌드 설정
-├── public/
-│   └── icons/                 # 확장프로그램 아이콘 (16, 48, 128px)
-├── src/
-│   ├── popup/                 # 팝업 UI 엔트리
-│   ├── components/
-│   │   ├── BookmarkItem/      # 개별 북마크/폴더 아이템
-│   │   ├── BookmarkList/      # 북마크 목록
-│   │   ├── SearchBar/         # 검색 바
-│   │   ├── Settings/          # 설정 (Sync Key, 전송)
-│   │   └── Sidebar/           # 메인 레이아웃
-│   ├── services/
-│   │   └── apiService.ts      # 백엔드 API 통신
-│   ├── store/
-│   │   └── bookmarkStore.ts   # Zustand 상태 관리
-│   ├── types/
-│   │   └── bookmark.ts        # TypeScript 타입 정의
-│   └── utils/
-│       └── bookmarkUtils.ts   # 북마크 유틸리티 함수
-└── dist/                      # 빌드 결과물 (생성됨)
+extension/src/
+├── popup/                          # 팝업 엔트리포인트
+│   ├── styles/
+│   │   ├── popup.css               # 전역: 테마 변수, 리셋, 애니메이션, 공유 UI
+│   │   ├── form-panel.css          # FormPanel 스타일
+│   │   └── drawer.css              # Drawer 스타일 (ConfirmDrawer, Settings 등)
+│   ├── App.tsx
+│   └── main.tsx
+├── components/
+│   ├── FolderTree/                 # VS Code 스타일 폴더 트리
+│   │   ├── FolderTree.tsx          # DndContext + handleDragEnd (메인 export)
+│   │   ├── FolderNode.tsx          # 개별 폴더 행 (useSortable, 인라인 수정)
+│   │   ├── FolderTreeList.tsx      # 재귀 리스트 래퍼 (SortableContext)
+│   │   ├── tree-utils.ts           # filterBookmarks, findBookmarkIndex
+│   │   └── FolderTree.css
+│   ├── BookmarkItem/               # 개별 북마크 행 (useSortable)
+│   ├── BookmarkEditor/             # 미니 카드 — 북마크 추가/수정
+│   ├── ActionBar/                  # 하단 액션 바 (선택, 삭제, 폼 열기)
+│   ├── FormPanel/                  # 하단 폼 (폴더 생성, 탭 저장, URL 추가, 퀵세이브 설정)
+│   ├── ConfirmDrawer/              # 삭제 확인 드로어
+│   ├── SearchBar/                  # 검색 입력 + 전체 접기/펼치기
+│   ├── Settings/                   # Sync Key 입력, 동기화 전송/취소
+│   │   └── hooks/                  # use-consent, use-sync
+│   ├── Sidebar/                    # 메인 레이아웃 (검색→트리→액션바→폼/설정)
+│   ├── CustomCheckbox/             # 커스텀 체크박스
+│   ├── Icons/                      # 공통 아이콘 (EmptyBox 등)
+│   └── TagBadge/                   # 태그 배지
+├── store/
+│   ├── bookmarkStore.ts            # Zustand 스토어 (슬라이스 조합)
+│   ├── types.ts                    # BookmarkState, SliceCreator 타입
+│   ├── store-utils.ts              # 트리 유틸 (collectUrlIds, filterBySelectedIds 등)
+│   └── slices/
+│       ├── selectionSlice.ts       # 선택 로직 (toggleSelect, selectAll 등)
+│       ├── crudSlice.ts            # CRUD (add/update/delete/move, 폴더 관리)
+│       ├── syncSlice.ts            # 서버 동기화 (syncToServer, cancelSync)
+│       └── uiSlice.ts             # UI 상태 (loadBookmarks, toggleFolder, 검색)
+├── services/
+│   ├── bookmarkService.ts          # Chrome Bookmarks API 래퍼
+│   ├── apiService.ts               # 백엔드 API 통신
+│   └── storageService.ts           # Chrome Storage 유틸
+├── hooks/
+│   └── useQuickSave.ts             # 퀵 세이브 훅
+├── types/
+│   └── bookmark.ts                 # BookmarkFolder, BookmarkUrl, 타입 가드
+├── utils/
+│   └── logger.ts                   # 로깅 유틸
+├── forms/                          # 별도 폼 윈도우 (독립 엔트리포인트)
+└── background/                     # Service Worker
 ```
 
-## 🛠 기술 스택
+## 기술 스택
 
-- **Frontend**: React 19.2.3 + TypeScript 5.3.3
-- **Build Tool**: Vite 5.0.12 + CRXJS
-- **State Management**: Zustand 5.0.11
-- **UI**: CSS Modules (컴포넌트별 스타일링)
-- **Package Manager**: pnpm (npm도 호환)
+| 항목 | 기술 |
+|------|------|
+| UI | React 19 + TypeScript 5.3 |
+| 빌드 | Vite 5 + CRXJS |
+| 상태관리 | Zustand 5 (슬라이스 패턴) |
+| 스타일 | Tailwind CSS 4 + 컴포넌트 CSS |
+| 드래그 앤 드롭 | @dnd-kit/core + @dnd-kit/sortable |
+| 아이콘 | lucide-react |
+| 패키지 매니저 | pnpm |
 
-## 🔧 개발
+## API
 
-### 개발 모드 실행
+### 동기화 엔드포인트
 
-```bash
-pnpm run dev
+```
+POST /api/directory/sync
 ```
 
-개발 모드에서는 핫 리로드가 지원되어 코드 변경 시 자동으로 반영됩니다.
+선택된 북마크를 `ExtensionBookmarkNode[]` 형태로 변환 후 전송합니다.
+백엔드에서 `directory`와 `source` 테이블에 저장됩니다.
 
-### 빌드 미리보기
+## 개인정보 보호
 
-```bash
-pnpm run preview
-```
+- 선택한 북마크만 전송
+- Sync Key를 통한 인증
+- HTTPS 통신
+- 사용자 동의 필수
 
-## 📡 API 통신
+## 버전
 
-### Sync Key 발급
-Kalpie Notebook 웹 애플리케이션에서 Sync Key를 발급받으세요.
-
-### 전송 프로세스
-1. 사용자가 Sync Key와 폴더를 선택
-2. Extension이 선택된 북마크 데이터를 수집
-3. `/api/directory/sync` 엔드포인트로 전송
-4. 백엔드에서 `directory`와 `source` 테이블에 저장
-5. 전송 완료 후 Kalpie Notebook에서 확인 가능
-
-## 📦 배포
-
-### Chrome Web Store 배포
-
-1. `pnpm run build` 실행
-2. `dist` 폴더를 ZIP으로 압축
-3. [Chrome Web Store Developer Dashboard](https://chrome.google.com/webstore/devconsole)에 업로드
-
-### 수동 배포 (개발용)
-
-1. `pnpm run build` 실행
-2. `dist` 폴더를 공유하거나 Git에 포함
-3. 사용자가 직접 Chrome에 로드
-
-## 🔒 개인정보 보호
-
-- ✅ 선택한 북마크만 전송
-- ✅ Sync Key를 통한 안전한 인증
-- ✅ HTTPS 통신
-- ✅ 사용자 동의 필수
-- ✅ 언제든지 Kalpie Notebook에서 데이터 삭제 가능
-
-## 📝 버전 정보
-
-- **v1.2.4** (현재): UI 개선 및 안정성 향상
+- **v3.0.0** (현재): 메이저 업데이트 — 퀵 세이브, 다크/라이트 테마, 드래그 앤 드롭 개선, 전체 UI 리뉴얼
+- **v1.2.4**: UI 개선, 스타일 분리, 모듈화, Chrome Web Store 배포 준비
 - **v1.2.3**: API 연동 추가
-- **v1.2.1**: API 연동 없는 기본 버전
+- **v1.2.1**: 기본 버전
 
-## 📄 라이선스
+## 라이선스
 
 MIT License
-
-## 🤝 기여
-
-이슈와 PR은 언제나 환영합니다!
-
-## 📧 문의
-
-문제가 발생하면 GitHub Issues에 등록해주세요.

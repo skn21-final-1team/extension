@@ -129,7 +129,7 @@ export const Settings = ({ onClose }: SettingsProps) => {
               className="btn btn-primary fp-btn"
               style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 5 }}
               onClick={handleImportClick}
-              disabled={!syncKey || selectedIds.size === 0}
+              disabled={!syncKey || (selectedIds.size === 0 && selectedFolderIds.size === 0)}
             >
               <Send size={11} /> Notebook으로 전송
             </button>

@@ -11,7 +11,7 @@ import { useBookmarkStore } from '../store/bookmarkStore';
 import { Sidebar } from '../components/Sidebar/Sidebar';
 
 function App() {
-  const { loadBookmarks, isLoading } = useBookmarkStore();
+  const { loadBookmarks, isLoading, bookmarks } = useBookmarkStore();
   // Settings(API 동기화) 패널 열림 여부
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
 
@@ -75,7 +75,7 @@ function App() {
       </header>
 
       <main className="app-main">
-        {isLoading ? (
+        {isLoading && bookmarks.length === 0 ? (
           <div className="loading">
             <div className="loading-spinner"></div>
             <span>북마크 불러오는 중...</span>

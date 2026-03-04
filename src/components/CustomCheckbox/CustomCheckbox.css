@@ -1,0 +1,44 @@
+/* 커스텀 체크박스 */
+.custom-checkbox {
+  position: relative;
+  flex-shrink: 0;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+}
+
+.custom-checkbox input[type='checkbox'] {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+  pointer-events: none;
+}
+
+.custom-checkbox-box {
+  width: 14px;
+  height: 14px;
+  border-radius: 3px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.12s ease;
+  border: 1.5px solid var(--text-muted);
+  background: transparent;
+}
+
+.custom-checkbox:hover .custom-checkbox-box {
+  border-color: var(--accent-color);
+  box-shadow: 0 0 0 2px rgba(139, 92, 246, 0.15);
+}
+
+.custom-checkbox input[type='checkbox']:checked + .custom-checkbox-box {
+  border-color: var(--accent-color);
+  background: var(--accent-color);
+  box-shadow: 0 0 6px rgba(139, 92, 246, 0.4);
+}
+
+/* 라이트 테마 */
+[data-theme="light"] .custom-checkbox input[type='checkbox']:checked + .custom-checkbox-box {
+  box-shadow: none;
+}

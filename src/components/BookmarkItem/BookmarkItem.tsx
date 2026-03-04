@@ -11,6 +11,8 @@ import type { BookmarkUrl } from '../../types/bookmark';
 import { useBookmarkStore } from '../../store/bookmarkStore';
 import { TagBadge } from '../TagBadge/TagBadge';
 import { BookmarkEditor } from '../BookmarkEditor/BookmarkEditor';
+import { ConfirmDrawer } from '../ConfirmDrawer/ConfirmDrawer';
+import { CustomCheckbox } from '../CustomCheckbox/CustomCheckbox';
 import './BookmarkItem.css';
 
 interface BookmarkItemProps {
@@ -19,32 +21,6 @@ interface BookmarkItemProps {
   depth?: number;
 }
 
-// 커스텀 체크박스 (FolderTree와 동일한 CSS 클래스 사용)
-const CustomCheckbox = ({
-  checked,
-  onChange,
-}: {
-  checked: boolean;
-  onChange: () => void;
-}) => (
-  <label className="custom-checkbox">
-    <input type="checkbox" checked={checked} onChange={onChange} />
-    <div className="custom-checkbox-box">
-      {checked && (
-        <svg width="8" height="6" viewBox="0 0 8 6" fill="none">
-          <path
-            d="M1 3L3 5L7 1"
-            stroke="white"
-            strokeWidth="1.5"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
-        </svg>
-      )}
-    </div>
-  </label>
-);
-
 export const BookmarkItem = React.memo(
   ({ bookmark, parentId, depth = 0 }: BookmarkItemProps) => {
     const { selectedIds, toggleSelect, deleteBookmark } = useBookmarkStore();
@@ -52,6 +28,7 @@ export const BookmarkItem = React.memo(
     const [showEditor, setShowEditor] = useState(false);
     const [faviconError, setFaviconError] = useState(false);
     const [isDeleting, setIsDeleting] = useState(false);
+    const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
     // URL이 바뀌면 favicon 오류 상태 초기화
     useEffect(() => {
@@ -77,15 +54,18 @@ export const BookmarkItem = React.memo(
 
     const faviconUrl = getFaviconUrl();
 
-    const handleDelete = async (e: React.MouseEvent) => {
+    const handleDelete = (e: React.MouseEvent) => {
       e.stopPropagation();
-      if (confirm(`"${bookmark.title}" 북마크를 삭제하시겠습니까?`)) {
-        setIsDeleting(true);
-        try {
-          await deleteBookmark(bookmark.id);
-        } finally {
-          setIsDeleting(false);
-        }
+      setShowDeleteConfirm(true);
+    };
+
+    const confirmDelete = async () => {
+      setShowDeleteConfirm(false);
+      setIsDeleting(true);
+      try {
+        await deleteBookmark(bookmark.id);
+      } finally {
+        setIsDeleting(false);
       }
     };
 
@@ -203,6 +183,17 @@ export const BookmarkItem = React.memo(
               url: bookmark.url || '',
               parentId,
             }}
+          />
+        )}
+
+        {showDeleteConfirm && (
+          <ConfirmDrawer
+            title="북마크 삭제"
+            message={`"${bookmark.title || '제목 없음'}" 북마크를 삭제하시겠습니까?`}
+            confirmLabel="삭제"
+            variant="danger"
+            onConfirm={confirmDelete}
+            onCancel={() => setShowDeleteConfirm(false)}
           />
         )}
       </>

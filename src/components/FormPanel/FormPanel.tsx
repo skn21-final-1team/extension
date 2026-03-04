@@ -21,6 +21,7 @@ interface FormPanelProps {
   type: FormPanelType;
   onClose: () => void;
   quickSaveConfig?: QuickSaveConfigProps;
+  defaultFolderId?: string;
 }
 
 interface FolderOpt { id: string; name: string; level: number; }
@@ -59,9 +60,13 @@ function FolderForm({ folders, onClose }: { folders: FolderOpt[]; onClose: () =>
 
   const handleCreate = async () => {
     if (!name.trim()) { setError('이름을 입력해주세요.'); return; }
-    await chrome.bookmarks.create({ title: name.trim(), parentId: parentId || undefined });
-    useBookmarkStore.getState().loadBookmarks();
-    onClose();
+    try {
+      await chrome.bookmarks.create({ title: name.trim(), parentId: parentId || undefined });
+      useBookmarkStore.getState().loadBookmarks();
+      onClose();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : '폴더 생성에 실패했습니다.');
+    }
   };
 
   return (
@@ -95,6 +100,7 @@ function SaveTabForm({ folders, onClose }: { folders: FolderOpt[]; onClose: () =
   const [tabInfo, setTabInfo] = useState<{ title: string; url: string; favIconUrl?: string } | null>(null);
   const [title, setTitle] = useState('');
   const [folderId, setFolderId] = useState('');
+  const [error, setError] = useState('');
 
   useEffect(() => {
     chrome.storage.local.get('formTabData', (result) => {
@@ -107,20 +113,26 @@ function SaveTabForm({ folders, onClose }: { folders: FolderOpt[]; onClose: () =
 
   useEffect(() => {
     if (folders.length > 0 && !folderId) setFolderId(folders[0].id);
-  }, [folders, folderId]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [folders]);
 
   const handleSave = async () => {
     if (!tabInfo) return;
     const targetId = folderId || folders[0]?.id;
     if (!targetId) return;
-    await chrome.bookmarks.create({ title: title.trim() || tabInfo.title, url: tabInfo.url, parentId: targetId });
-    chrome.storage.local.remove('formTabData');
-    useBookmarkStore.getState().loadBookmarks();
-    onClose();
+    try {
+      await chrome.bookmarks.create({ title: title.trim() || tabInfo.title, url: tabInfo.url, parentId: targetId });
+      chrome.storage.local.remove('formTabData');
+      useBookmarkStore.getState().loadBookmarks();
+      onClose();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : '탭 저장에 실패했습니다.');
+    }
   };
 
   return (
     <>
+      {error && <div className="fp-error"><AlertCircle size={10} />{error}</div>}
       {tabInfo && (
         <div className="fp-url-preview">
           {tabInfo.favIconUrl && (
@@ -157,16 +169,17 @@ function SaveTabForm({ folders, onClose }: { folders: FolderOpt[]; onClose: () =
 }
 
 // ── URL 추가 ──
-function AddUrlForm({ folders, onClose }: { folders: FolderOpt[]; onClose: () => void }) {
+function AddUrlForm({ folders, onClose, defaultFolderId }: { folders: FolderOpt[]; onClose: () => void; defaultFolderId?: string }) {
   const [title, setTitle] = useState('');
   const [url, setUrl] = useState('');
-  const [folderId, setFolderId] = useState('');
+  const [folderId, setFolderId] = useState(defaultFolderId || '');
   const [error, setError] = useState('');
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
     if (folders.length > 0 && !folderId) setFolderId(folders[0].id);
-  }, [folders, folderId]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [folders]);
 
   const handleAdd = async () => {
     setError('');
@@ -176,9 +189,14 @@ function AddUrlForm({ folders, onClose }: { folders: FolderOpt[]; onClose: () =>
     const targetId = folderId || folders[0]?.id;
     if (!targetId) { setError('폴더를 선택해주세요.'); return; }
     setSaving(true);
-    await chrome.bookmarks.create({ title: title.trim(), url, parentId: targetId });
-    useBookmarkStore.getState().loadBookmarks();
-    onClose();
+    try {
+      await chrome.bookmarks.create({ title: title.trim(), url, parentId: targetId });
+      useBookmarkStore.getState().loadBookmarks();
+      onClose();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : '북마크 추가에 실패했습니다.');
+      setSaving(false);
+    }
   };
 
   return (
@@ -227,7 +245,8 @@ function QuickSaveConfigForm({ folders, onClose, config }: {
 
   useEffect(() => {
     if (!folderId && folders.length > 0) setFolderId(folders[0].id);
-  }, [folders, folderId]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [folders]);
 
   const handleSave = () => {
     const selected = folders.find((f) => f.id === folderId);
@@ -267,7 +286,7 @@ const PANEL_TITLES: Record<FormPanelType, string> = {
   quickSaveConfig: '⚡ 빠른저장 폴더 설정',
 };
 
-export function FormPanel({ type, onClose, quickSaveConfig }: FormPanelProps) {
+export function FormPanel({ type, onClose, quickSaveConfig, defaultFolderId }: FormPanelProps) {
   const { bookmarks } = useBookmarkStore();
   const folders = useMemo(() => flattenFolders(bookmarks), [bookmarks]);
 
@@ -280,7 +299,7 @@ export function FormPanel({ type, onClose, quickSaveConfig }: FormPanelProps) {
       <div className="fp-body">
         {type === 'folder'  && <FolderForm  folders={folders} onClose={onClose} />}
         {type === 'saveTab' && <SaveTabForm folders={folders} onClose={onClose} />}
-        {type === 'addUrl'  && <AddUrlForm  folders={folders} onClose={onClose} />}
+        {type === 'addUrl'  && <AddUrlForm  folders={folders} onClose={onClose} defaultFolderId={defaultFolderId} />}
         {type === 'quickSaveConfig' && quickSaveConfig && (
           <QuickSaveConfigForm folders={folders} onClose={onClose} config={quickSaveConfig} />
         )}
