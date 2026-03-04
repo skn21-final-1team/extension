@@ -65,10 +65,7 @@ export const clearStorage = async (): Promise<void> => {
 
 // Storage 키 상수
 export const STORAGE_KEYS = {
-  SELECTED_BOOKMARKS: 'selectedBookmarks',
-  LAST_SYNC_TIME: 'lastSyncTime',
-  API_URL: 'apiUrl',
-  USER_SETTINGS: 'userSettings',
+  QUICK_SAVE_FOLDER: 'quickSaveFolder',
 } as const;
 
 export const storageService = {

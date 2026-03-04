@@ -1,17 +1,151 @@
-/* 액션 바 스타일 */
+/* 액션 바 */
 
 .action-bar {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: var(--spacing-sm); /* md(12px) -> sm(8px)로 축소 */
-  background-color: var(--bg-secondary);
-  border-top: 1px solid var(--border-color);
+  padding: 0 var(--spacing-md);
+  height: 48px;
+  background: var(--bg-elevated);
+  border-top: 1px solid var(--border-subtle);
   flex-shrink: 0;
 }
 
 .action-bar-left,
 .action-bar-right {
   display: flex;
-  gap: var(--spacing-sm);
+  align-items: center;
+  gap: 4px;
+}
+
+.action-count {
+  font-size: 11px;
+  color: var(--text-muted);
+  padding: 0 2px;
+  letter-spacing: -0.2px;
+}
+
+.action-icon-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border: none;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: background 0.12s ease, color 0.12s ease;
+  padding: 0;
+  flex-shrink: 0;
+}
+
+.action-icon-btn:hover {
+  background: var(--bg-hover);
+  color: var(--accent-hover);
+}
+
+.action-icon-btn--danger:hover {
+  color: var(--error-color);
+  background: rgba(248, 113, 113, 0.1);
+}
+
+.action-label-btn {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 0 10px;
+  height: 28px;
+  border-radius: 6px;
+  border: 1px solid var(--border-default);
+  background: var(--bg-card);
+  color: var(--text-secondary);
+  font-size: 11px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.12s ease;
+  white-space: nowrap;
+  font-family: var(--font-family);
+}
+
+.action-label-btn:hover {
+  border-color: var(--border-strong);
+  color: var(--text-primary);
+  background: var(--bg-active);
+}
+
+.action-label-btn--primary {
+  border-color: rgba(139, 92, 246, 0.35);
+  color: var(--accent-color);
+  background: var(--accent-bg);
+}
+
+.action-label-btn--primary:hover {
+  border-color: var(--accent-color);
+  color: var(--accent-hover);
+  background: rgba(139, 92, 246, 0.18);
+  box-shadow: 0 0 8px var(--accent-glow);
+}
+
+[data-theme="light"] .action-bar {
+  background: #f7f7f7;
+}
+
+[data-theme="light"] .action-label-btn {
+  background: #ffffff;
+  border-color: #e5e7eb;
+  color: #6b7280;
+}
+
+[data-theme="light"] .action-label-btn:hover {
+  background: #f3f4f6;
+  border-color: #d1d5db;
+  color: #111827;
+}
+
+[data-theme="light"] .action-label-btn--primary {
+  background: #f5f3ff;
+  border-color: rgba(124, 58, 237, 0.3);
+  color: #7c3aed;
+}
+
+[data-theme="light"] .action-label-btn--primary:hover {
+  background: #ede9fe;
+  border-color: #7c3aed;
+  box-shadow: none;
+}
+
+/* 빠른저장 상태 스타일 */
+.action-label-btn--success {
+  border-color: rgba(34, 197, 94, 0.4);
+  color: #22c55e;
+  background: rgba(34, 197, 94, 0.1);
+}
+
+.action-label-btn--error {
+  border-color: rgba(239, 68, 68, 0.4);
+  color: #ef4444;
+  background: rgba(239, 68, 68, 0.1);
+}
+
+.animate-spin {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+[data-theme="light"] .action-label-btn--success {
+  border-color: rgba(22, 163, 74, 0.35);
+  color: #16a34a;
+  background: #f0fdf4;
+}
+
+[data-theme="light"] .action-label-btn--error {
+  border-color: rgba(220, 38, 38, 0.35);
+  color: #dc2626;
+  background: #fef2f2;
 }

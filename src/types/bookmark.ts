@@ -10,14 +10,13 @@ export interface BookmarkUrl {
   title: string
   url: string
   tags?: string[]
-  isChecked: boolean
 }
 
 // 북마크 폴더
 export interface BookmarkFolder {
   id: string
   name: string
-  isExpanded: boolean
+  parentId?: string
   folders?: BookmarkFolder[]
   urls: BookmarkUrl[]
 }
@@ -42,21 +41,6 @@ export const isUrl = (item: BookmarkItem): item is BookmarkUrl => {
 // API 요청/응답 타입 (백엔드 연동용)
 // ============================================
 
-// 북마크 생성 요청
-export interface BookmarkCreateRequest {
-  title: string
-  url?: string
-  parentId?: string
-  tags?: string[]
-}
-
-// 북마크 수정 요청
-export interface BookmarkUpdateRequest {
-  title?: string
-  url?: string
-  tags?: string[]
-}
-
 // API 응답 기본 타입
 export interface ApiResponse<T> {
   success: boolean
@@ -70,12 +54,6 @@ export interface ExtensionBookmarkNode {
   title: string
   url?: string | null
   children: ExtensionBookmarkNode[]
-}
-
-// 백엔드 sync key 발급 응답 (Backend: schemas/directory.py DirectorySyncKeyResponse 대응)
-export interface DirectorySyncKeyResponse {
-  sync_key: string
-  expires_at: string
 }
 
 // ============================================

@@ -3,14 +3,11 @@ import { BookmarkFolderList } from '../types/bookmark';
 /**
  * 북마크 트리 내의 모든 URL ID를 재귀적으로 찾아 반환합니다.
  */
-export const collectUrlIds = (list: BookmarkFolderList): string[] => {
-  let ids: string[] = [];
+export const collectUrlIds = (list: BookmarkFolderList, ids: string[] = []): string[] => {
   for (const item of list) {
-    if (item.folders) {
-      ids = [...ids, ...collectUrlIds(item.folders)];
-    }
+    if (item.folders) collectUrlIds(item.folders, ids);
     if (item.urls) {
-      ids = [...ids, ...item.urls.map(u => u.id)];
+      for (const u of item.urls) ids.push(u.id);
     }
   }
   return ids;
@@ -69,14 +66,12 @@ export const filterBySelectedIds = (
  * 특정 폴더의 모든 하위 폴더 ID를 재귀적으로 수집합니다.
  */
 export const collectSubFolderIds = (
-  folders: BookmarkFolderList
+  folders: BookmarkFolderList,
+  ids: string[] = []
 ): string[] => {
-  let ids: string[] = [];
   for (const folder of folders) {
     ids.push(folder.id);
-    if (folder.folders) {
-      ids = [...ids, ...collectSubFolderIds(folder.folders)];
-    }
+    if (folder.folders) collectSubFolderIds(folder.folders, ids);
   }
   return ids;
 };
@@ -121,34 +116,23 @@ export const findParentFolderIds = (
 };
 
 /**
- * 선택된 폴더들을 재귀적으로 필터링하여 반환합니다.
- * (선택된 폴더는 하위 구조 모두 포함)
+ * 특정 폴더의 모든 조상 폴더 ID를 찾아 반환합니다.
  */
-export const filterSelectedFolders = (
+export const findAncestorFolderIds = (
   folders: BookmarkFolderList,
-  selectedIds: Set<string>
-): BookmarkFolderList => {
-  const result: BookmarkFolderList = [];
-
+  targetFolderId: string,
+  ancestors: string[] = []
+): string[] | null => {
   for (const folder of folders) {
-    if (selectedIds.has(folder.id)) {
-      result.push(folder);
-    } else {
-      const filteredSubFolders = folder.folders
-        ? filterSelectedFolders(folder.folders, selectedIds)
-        : [];
-
-      if (filteredSubFolders.length > 0) {
-        result.push({
-          ...folder,
-          urls: [], // 현재 폴더는 선택하지 않았으므로 URL 제거
-          folders: filteredSubFolders,
-        });
-      }
+    if (folder.id === targetFolderId) {
+      return ancestors;
+    }
+    if (folder.folders) {
+      const result = findAncestorFolderIds(folder.folders, targetFolderId, [...ancestors, folder.id]);
+      if (result) return result;
     }
   }
-
-  return result;
+  return null;
 };
 
 /**

@@ -14,11 +14,11 @@ import type {
 /**
  * Chrome 북마크 노드를 앱 북마크 타입으로 변환 (재귀)
  */
-const convertToBookmark = (node: ChromeBookmarkNode): BookmarkItem => {
+const convertToBookmark = (node: ChromeBookmarkNode, parentId?: string): BookmarkItem => {
   const isFolder = !node.url;
 
   if (isFolder) {
-    const children = node.children?.map(convertToBookmark) || [];
+    const children = node.children?.map((child) => convertToBookmark(child, node.id)) || [];
     const folders = children.filter((child): child is BookmarkFolder =>
       'folders' in child
     );
@@ -29,7 +29,7 @@ const convertToBookmark = (node: ChromeBookmarkNode): BookmarkItem => {
     const folder: BookmarkFolder = {
       id: node.id,
       name: node.title,
-      isExpanded: false, // 기본값
+      parentId,
       folders,
       urls,
     };
@@ -40,7 +40,6 @@ const convertToBookmark = (node: ChromeBookmarkNode): BookmarkItem => {
       title: node.title,
       url: node.url || '',
       tags: [],
-      isChecked: false,
     };
     return url;
   }
@@ -59,8 +58,6 @@ export const getAllBookmarks = async (): Promise<BookmarkFolderList> => {
 
       // 루트 노드의 children이 실제 북마크
       const rootChildren = tree[0]?.children || [];
-      console.log('--- CHROME BOOKMARK TREE ---', tree);
-      console.log('--- ROOT CHILDREN ---', rootChildren);
       const bookmarks: BookmarkFolder[] = [];
       const orphanUrls: BookmarkUrl[] = [];
 
@@ -79,15 +76,12 @@ export const getAllBookmarks = async (): Promise<BookmarkFolderList> => {
 
       // 단일 북마크(orphanUrls)가 존재할 경우 처리
       if (orphanUrls.length > 0) {
-        // 크롬 브라우저 기본 제공 '기타 북마크' 찾기 (보통 id: '2', title: 'Other Bookmarks' 또는 '기타 북마크')
-        // Node의 특징을 파악하여 가장 가능성 높은 폴더에 병합
-        let targetFolderIndex = bookmarks.findIndex(
-          b => b.id === '2' || b.name === '기타 북마크' || b.name === 'Other Bookmarks'
-        );
+        // 크롬 기본 '기타 북마크' 폴더 찾기 (id: '2')
+        let targetFolderIndex = bookmarks.findIndex(b => b.id === '2');
 
-        // 기본 제공 기타 북마크가 배열 내에 없다면, 맨 마지막 폴더를 선택하거나 새로 생성
+        // 못 찾으면 마지막 폴더에 병합
         if (targetFolderIndex === -1 && bookmarks.length > 0) {
-           targetFolderIndex = bookmarks.length - 1; 
+           targetFolderIndex = bookmarks.length - 1;
         }
 
         if (targetFolderIndex >= 0) {
@@ -101,21 +95,19 @@ export const getAllBookmarks = async (): Promise<BookmarkFolderList> => {
            bookmarks.push({
              id: 'orphan-urls',
              name: '기타 북마크',
-             isExpanded: false,
              folders: [],
              urls: orphanUrls,
            });
         }
       }
 
-      // 최상위 폴더 중복 방지: 동일 이름(예: '모바일 북마크')의 폴더가 여러 개인 경우 병합 (크롬 자체 버그 대비)
+      // 최상위 폴더 중복 방지: 동일 이름 폴더 병합 (크롬이 같은 폴더를 다른 ID로 반환하는 경우 대비)
       const mergedMap = new Map<string, BookmarkFolder>();
-      
+
       bookmarks.forEach((folder) => {
-        const existing = mergedMap.get(folder.name);
+        const key = folder.name || folder.id;
+        const existing = mergedMap.get(key);
         if (existing) {
-          // 이름이 같은 기존 폴더가 있으면 자식들 추가
-          // 단, 중복된 항목이 또 들어가지 않도록 id를 기준으로 Set이나 단순 배열 병합 시 중복 체크
           const currentUrls = existing.urls || [];
           const currentFolders = existing.folders || [];
 
@@ -126,17 +118,15 @@ export const getAllBookmarks = async (): Promise<BookmarkFolderList> => {
           });
 
           (folder.folders || []).forEach(f => {
-             if (!currentFolders.some(cf => cf.id === f.id)) {
-                currentFolders.push(f);
-             }
+            if (!currentFolders.some(cf => cf.id === f.id)) {
+              currentFolders.push(f);
+            }
           });
-          
+
           existing.urls = currentUrls;
           existing.folders = currentFolders;
         } else {
-          // Map에 없으면 이름 기준으로 새로 저장
-          // 얕은 복사 방지를 위해 새 객체로 할당
-          mergedMap.set(folder.name, { ...folder, urls: [...(folder.urls || [])], folders: [...(folder.folders || [])] });
+          mergedMap.set(key, { ...folder, urls: [...(folder.urls || [])], folders: [...(folder.folders || [])] });
         }
       });
 
@@ -293,6 +283,21 @@ export const createFolder = async (
   });
 };
 
+/**
+ * 특정 폴더의 자식 노드 목록 조회 (Chrome 실제 순서)
+ */
+export const getChildren = async (id: string): Promise<ChromeBookmarkNode[]> => {
+  return new Promise((resolve, reject) => {
+    chrome.bookmarks.getChildren(id, (results) => {
+      if (chrome.runtime.lastError) {
+        reject(new Error(chrome.runtime.lastError.message));
+        return;
+      }
+      resolve(results as ChromeBookmarkNode[]);
+    });
+  });
+};
+
 export const bookmarkService = {
   getAll: getAllBookmarks,
   create: createBookmark,
@@ -302,4 +307,5 @@ export const bookmarkService = {
   search: searchBookmarks,
   move: moveBookmark,
   createFolder: createFolder,
+  getChildren: getChildren,
 };

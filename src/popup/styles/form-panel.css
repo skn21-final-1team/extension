@@ -1,0 +1,146 @@
+/* ── 폼 패널 — 액션바 아래 펼쳐지는 컴팩트 폼 ── */
+@keyframes fp-drop {
+  from { opacity: 0; transform: translateY(-6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.form-panel {
+  border-top: 1px solid var(--border-default);
+  background: var(--bg-elevated);
+  flex-shrink: 0;
+  animation: fp-drop 0.16s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.fp-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 7px 12px 6px;
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.fp-title {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-primary);
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.fp-close {
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  background: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  border-radius: 4px;
+  padding: 0;
+  transition: color 0.1s, background 0.1s;
+}
+
+.fp-close:hover {
+  color: var(--text-primary);
+  background: var(--bg-hover);
+}
+
+.fp-body {
+  padding: 8px 12px 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+/* 2열 가로 배치 */
+.fp-row {
+  display: flex;
+  gap: 8px;
+  align-items: flex-end;
+}
+
+.fp-field {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+}
+
+.fp-label {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+/* input/select 크기 오버라이드 */
+.fp-input {
+  padding: 5px 7px;
+  font-size: 11px;
+  border-radius: 5px;
+}
+
+.fp-actions {
+  display: flex;
+  gap: 6px;
+  justify-content: flex-end;
+  padding-top: 2px;
+}
+
+/* URL 추가 폼의 인라인 액션 버튼 (폴더 행 옆) */
+.fp-actions--inline {
+  padding-top: 0;
+  flex-shrink: 0;
+  align-self: flex-end;
+}
+
+.fp-btn {
+  height: 26px;
+  padding: 0 10px;
+  font-size: 11px;
+  border-radius: 5px;
+}
+
+.fp-url-preview {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 10px;
+  color: var(--text-muted);
+  overflow: hidden;
+  padding-bottom: 2px;
+}
+
+.fp-url-text {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  min-width: 0;
+}
+
+.fp-error {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 10px;
+  padding: 4px 7px;
+  border-radius: 5px;
+  background: rgba(248, 113, 113, 0.1);
+  color: var(--error-color);
+  border: 1px solid rgba(248, 113, 113, 0.18);
+}
+
+/* 라이트 테마 */
+[data-theme="light"] .form-panel {
+  background: #f9fafb;
+  border-top-color: #e5e7eb;
+}
+
+[data-theme="light"] .fp-head {
+  border-bottom-color: #f3f4f6;
+}

@@ -13,8 +13,12 @@ export const useConsent = () => {
   // 컴포넌트 마운트 시 스토리지에서 동의 여부를 확인합니다.
   useEffect(() => {
     const checkConsent = async () => {
-      const consent = await storageService.get<boolean>(CONSENT_KEY);
-      setHasConsent(!!consent);
+      try {
+        const consent = await storageService.get<boolean>(CONSENT_KEY);
+        setHasConsent(!!consent);
+      } catch {
+        setHasConsent(false);
+      }
     };
     checkConsent();
   }, []);

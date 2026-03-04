@@ -1,88 +1,138 @@
-/* 북마크 편집기 스타일 */
-
-.editor-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: rgba(0, 0, 0, 0.5);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 100;
+/* ── 미니 카드 (모달 대체) ── */
+@keyframes card-pop {
+  from { opacity: 0; transform: translateY(4px) scale(0.96); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
 }
 
-.editor-modal {
-  width: 90%;
-  max-width: 360px;
-  background-color: var(--bg-secondary);
-  border-radius: var(--border-radius);
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
-  overflow: hidden;
+/* 클릭 외부 닫기용 투명 배경 */
+.card-backdrop {
+  position: absolute;
+  inset: 0;
+  z-index: 49;
 }
 
-.editor-header {
+/* 카드 본체 */
+.mini-card {
+  position: absolute;
+  bottom: 56px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 220px;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-default);
+  border-radius: 10px;
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.35), 0 0 0 1px rgba(255,255,255,0.04) inset;
+  z-index: 50;
+  animation: card-pop 0.14s cubic-bezier(0.16, 1, 0.3, 1) both;
+  transform-origin: bottom center;
+}
+
+.mini-card-head {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: var(--spacing-md) var(--spacing-lg);
-  border-bottom: 1px solid var(--border-color);
+  padding: 8px 10px 6px;
+  border-bottom: 1px solid var(--border-subtle);
 }
 
-.editor-title {
-  font-size: var(--font-size-base);
+.mini-card-title {
+  font-size: 12px;
   font-weight: 600;
+  color: var(--text-primary);
+  display: flex;
+  align-items: center;
+  gap: 5px;
 }
 
-.editor-close {
+.mini-card-close {
+  width: 20px;
+  height: 20px;
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 28px;
-  height: 28px;
-  background: transparent;
   border: none;
-  border-radius: 50%;
-  font-size: 14px;
-  color: var(--text-secondary);
+  background: none;
+  color: var(--text-muted);
   cursor: pointer;
-  transition: all var(--transition-fast);
+  border-radius: 4px;
+  transition: color 0.1s, background 0.1s;
+  padding: 0;
+  flex-shrink: 0;
 }
 
-.editor-close:hover {
-  background-color: var(--bg-hover);
+.mini-card-close:hover {
   color: var(--text-primary);
+  background: var(--bg-hover);
 }
 
-.editor-form {
-  padding: var(--spacing-lg);
-}
-
-.editor-error {
-  padding: var(--spacing-sm) var(--spacing-md);
-  margin-bottom: var(--spacing-md);
-  background-color: #fef2f2;
-  color: var(--error-color);
-  font-size: var(--font-size-sm);
-  border-radius: var(--border-radius-sm);
-}
-
-.editor-field {
-  margin-bottom: var(--spacing-md);
-}
-
-.editor-label {
-  display: block;
-  margin-bottom: var(--spacing-xs);
-  font-size: var(--font-size-sm);
-  font-weight: 500;
-  color: var(--text-secondary);
-}
-
-.editor-actions {
+.mini-card-body {
+  padding: 8px 10px;
   display: flex;
-  justify-content: flex-end;
-  gap: var(--spacing-sm);
-  margin-top: var(--spacing-lg);
+  flex-direction: column;
+  gap: 6px;
+}
+
+.mini-card-field {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.mini-card-label {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.mini-card-url {
+  font-size: 10px;
+  color: var(--text-muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  padding: 3px 0 1px;
+}
+
+.mini-card-error {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 10px;
+  padding: 5px 7px;
+  border-radius: 5px;
+  background: rgba(248, 113, 113, 0.1);
+  color: var(--error-color);
+}
+
+.mini-card-footer {
+  display: flex;
+  gap: 6px;
+  padding: 0 10px 8px;
+}
+
+/* 카드 내부 input/select/btn 사이즈 */
+.mini-card .input {
+  padding: 5px 8px;
+  font-size: 12px;
+  border-radius: 5px;
+}
+
+.mini-card .btn {
+  height: 28px;
+  padding: 0 10px;
+  font-size: 11px;
+  border-radius: 5px;
+}
+
+/* 라이트 테마 */
+[data-theme="light"] .mini-card {
+  background: #ffffff;
+  border-color: #e5e7eb;
+  box-shadow: 0 6px 24px rgba(0,0,0,0.12);
+}
+
+[data-theme="light"] .mini-card-head {
+  border-bottom-color: #f3f4f6;
 }
