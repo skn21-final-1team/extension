@@ -110,6 +110,13 @@ html, body, #root {
   border: 1px solid rgba(248,113,113,0.2);
 }
 
+/* 파비콘 fallback 이모지/아이콘 */
+.form-site-icon {
+  font-size: 12px;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
 .form-site-row {
   display: flex;
   align-items: center;

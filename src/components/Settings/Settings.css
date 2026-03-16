@@ -1,0 +1,162 @@
+/* ── Settings 컴포넌트 ── */
+
+.settings-cloud-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  border-radius: var(--border-radius-sm);
+  background: rgba(139, 92, 246, 0.15);
+  flex-shrink: 0;
+  color: var(--accent-color);
+}
+
+.settings-key-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.settings-key-input {
+  padding-right: 30px;
+}
+
+.settings-eye-btn {
+  position: absolute;
+  right: 8px;
+  color: var(--text-muted);
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  display: flex;
+  align-items: center;
+}
+
+.settings-info-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.settings-info-label {
+  font-size: 11px;
+  color: var(--text-secondary);
+}
+
+.settings-count-badge {
+  font-size: var(--font-size-xs);
+  font-weight: 600;
+  padding: 1px 7px;
+  border-radius: 20px;
+  background: var(--accent-bg);
+  color: var(--accent-hover);
+}
+
+.settings-info-sub {
+  font-size: 11px;
+  color: var(--text-secondary);
+}
+
+.settings-info-sub strong {
+  color: var(--text-primary);
+}
+
+.settings-hint {
+  font-size: var(--font-size-xs);
+  color: var(--text-muted);
+}
+
+.settings-folder-list {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.settings-folder-item {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11px;
+  color: var(--text-primary);
+}
+
+.settings-folder-icon {
+  color: var(--folder-color);
+  flex-shrink: 0;
+}
+
+.settings-more {
+  font-size: var(--font-size-xs);
+  color: var(--text-muted);
+}
+
+.settings-message {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  padding: 7px 10px;
+  border-radius: 7px;
+}
+
+.settings-message--success {
+  background: rgba(52, 211, 153, 0.1);
+  color: var(--success-color);
+  border: 1px solid rgba(52, 211, 153, 0.2);
+}
+
+.settings-message--error {
+  background: rgba(248, 113, 113, 0.1);
+  color: var(--error-color);
+  border: 1px solid rgba(248, 113, 113, 0.2);
+}
+
+.settings-msg-icon {
+  flex-shrink: 0;
+}
+
+.settings-btn-full {
+  width: 100%;
+}
+
+/* ── 개인정보 동의 드로어 ── */
+
+.settings-consent-overlay {
+  z-index: 60;
+}
+
+.settings-consent-icon {
+  background: rgba(52, 211, 153, 0.15);
+}
+
+.settings-lock-emoji {
+  font-size: var(--font-size-lg);
+  line-height: 1;
+}
+
+.settings-consent-text {
+  font-size: var(--font-size-sm);
+  line-height: 1.7;
+  color: var(--text-secondary);
+}
+
+.settings-consent-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.settings-consent-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: var(--font-size-sm);
+  color: var(--text-primary);
+}
+
+.settings-consent-check {
+  color: var(--success-color);
+  flex-shrink: 0;
+}

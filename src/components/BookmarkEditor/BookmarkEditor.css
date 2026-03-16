@@ -126,6 +126,17 @@
   border-radius: 5px;
 }
 
+/* 제목 링크 아이콘 */
+.mini-card-link-icon {
+  color: var(--accent-color);
+  flex-shrink: 0;
+}
+
+/* 에러 내 아이콘 */
+.mini-card-error-icon {
+  flex-shrink: 0;
+}
+
 /* 라이트 테마 */
 [data-theme="light"] .mini-card {
   background: #ffffff;

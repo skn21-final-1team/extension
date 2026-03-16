@@ -9,6 +9,7 @@
   align-items: center;
   height: 28px;
   border-radius: 5px;
+  padding-left: var(--bookmark-row-indent, 20px);
   padding-right: 4px;
   transition: background 0.1s ease;
   cursor: grab;
@@ -43,11 +44,46 @@
   text-overflow: ellipsis;
   white-space: nowrap;
   letter-spacing: 0.01em;
+  cursor: pointer;
 }
 
 .bookmark-title.bookmark-title--selected {
   color: var(--accent-hover);
   font-weight: 500;
+}
+
+/* 체크박스 래퍼 */
+.bookmark-checkbox-wrap {
+  padding-right: 6px;
+}
+
+/* 파비콘 래퍼 */
+.bookmark-favicon-wrap {
+  flex-shrink: 0;
+  width: 16px;
+  height: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 6px;
+}
+
+/* 파비콘 이미지 */
+.bookmark-favicon-img {
+  border-radius: 2px;
+}
+
+/* 파비콘 fallback 아이콘 */
+.bookmark-favicon-icon {
+  color: #9ca3af;
+}
+
+/* 태그 목록 */
+.bookmark-tags {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-left: 4px;
 }
 
 /* 액션 버튼 그룹 */

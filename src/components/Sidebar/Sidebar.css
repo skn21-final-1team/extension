@@ -1,8 +1,9 @@
 /* 사이드바 스타일 */
 
-/* 트리 스크롤 영역 */
+/* 트리 스크롤 영역 — max-height는 --sidebar-tree-height 변수로 제어 */
 .sidebar-tree {
   overflow-y: auto;
+  max-height: var(--sidebar-tree-height, var(--tree-max-height));
   transition: max-height 0.2s ease;
 }
 
@@ -37,5 +38,6 @@
   left: 0;
   border-radius: 9999px;
   background: var(--accent-color);
+  width: var(--progress-width, 0%);
   transition: width 0.2s ease;
 }
