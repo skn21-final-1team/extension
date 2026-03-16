@@ -3,10 +3,14 @@
  * 실제 사용되는 아이콘만 래핑
  */
 
-import { PackageOpen } from 'lucide-react';
+import type { SVGProps } from 'react'
+import { PackageOpen } from 'lucide-react'
 
-export const Icons = {
-  EmptyBox: (props: React.SVGProps<SVGSVGElement>) => (
+const Icons = {
+  EmptyBox: (props: SVGProps<SVGSVGElement>) => (
     <PackageOpen size={40} strokeWidth={1.2} {...(props as object)} />
   ),
-};
+}
+
+export { Icons }
+export default Icons

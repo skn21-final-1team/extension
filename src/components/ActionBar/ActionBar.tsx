@@ -3,36 +3,36 @@
  * 버튼 클릭 시 Sidebar 안의 FormPanel을 열어줌
  */
 
-import { useState, useMemo } from 'react';
-import { Pin, FolderPlus, Link2, X, CheckSquare, Trash2, Zap, Loader2, Check, AlertCircle } from 'lucide-react';
-import { useBookmarkStore } from '../../store/bookmarkStore';
-import { ConfirmDrawer } from '../ConfirmDrawer/ConfirmDrawer';
-import type { FormPanelType } from '../FormPanel/FormPanel';
-import type { QuickSaveFolder, QuickSaveStatus } from '../../hooks/useQuickSave';
-import './ActionBar.css';
+import { useState, useMemo } from 'react'
+import { Pin, FolderPlus, Link2, X, CheckSquare, Trash2, Zap, Loader2, Check, AlertCircle } from 'lucide-react'
+import { useBookmarkStore } from '../../store/bookmarkStore'
+import ConfirmDrawer from '../ConfirmDrawer/ConfirmDrawer'
+import type { FormPanelType } from '../FormPanel/FormPanel'
+import type { QuickSaveFolder, QuickSaveStatus } from '../../hooks/useQuickSave'
+import './ActionBar.css'
 
 interface QuickSaveProps {
-  folder: QuickSaveFolder | null;
-  status: QuickSaveStatus;
-  quickSave: () => void;
+  folder: QuickSaveFolder | null
+  status: QuickSaveStatus
+  quickSave: () => void
 }
 
 interface ActionBarProps {
-  onOpenPanel: (type: FormPanelType) => void;
-  quickSave: QuickSaveProps;
-  onOpenQuickSaveConfig: () => void;
+  onOpenPanel: (type: FormPanelType) => void
+  quickSave: QuickSaveProps
+  onOpenQuickSaveConfig: () => void
 }
 
-export function ActionBar({ onOpenPanel, quickSave, onOpenQuickSaveConfig }: ActionBarProps) {
-  const { selectedIds, selectedFolderIds, selectAll, deselectAll } = useBookmarkStore();
-  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+function ActionBar({ onOpenPanel, quickSave, onOpenQuickSaveConfig }: ActionBarProps) {
+  const { selectedIds, selectedFolderIds, selectAll, deselectAll } = useBookmarkStore()
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
 
   const totalSelected = useMemo(
     () => selectedIds.size + selectedFolderIds.size,
     [selectedIds, selectedFolderIds]
-  );
+  )
 
-  const qs = quickSave;
+  const qs = quickSave
 
   const renderQuickSaveBtn = () => {
     if (!qs.folder) {
@@ -40,7 +40,7 @@ export function ActionBar({ onOpenPanel, quickSave, onOpenQuickSaveConfig }: Act
         <button className="action-label-btn" onClick={onOpenQuickSaveConfig} title="빠른저장 폴더 설정">
           <Zap size={12} /> 빠른저장
         </button>
-      );
+      )
     }
     switch (qs.status) {
       case 'saving':
@@ -48,32 +48,32 @@ export function ActionBar({ onOpenPanel, quickSave, onOpenQuickSaveConfig }: Act
           <button className="action-label-btn" disabled>
             <Loader2 size={12} className="animate-spin" /> 저장중...
           </button>
-        );
+        )
       case 'success':
         return (
           <button className="action-label-btn action-label-btn--success" disabled>
             <Check size={12} /> 저장됨!
           </button>
-        );
+        )
       case 'error':
         return (
           <button className="action-label-btn action-label-btn--error" disabled>
             <AlertCircle size={12} /> 실패
           </button>
-        );
+        )
       default:
         return (
           <button
             className="action-label-btn"
             onClick={qs.quickSave}
-            onContextMenu={(e) => { e.preventDefault(); onOpenQuickSaveConfig(); }}
+            onContextMenu={(e) => { e.preventDefault(); onOpenQuickSaveConfig() }}
             title={`빠른저장 → ${qs.folder.name} (우클릭: 설정변경)`}
           >
             <Zap size={12} /> 빠른저장
           </button>
-        );
+        )
     }
-  };
+  }
 
   return (
     <>
@@ -121,12 +121,14 @@ export function ActionBar({ onOpenPanel, quickSave, onOpenQuickSaveConfig }: Act
           confirmLabel="삭제"
           variant="danger"
           onConfirm={async () => {
-            setShowDeleteConfirm(false);
-            await useBookmarkStore.getState().deleteSelectedBookmarks();
+            setShowDeleteConfirm(false)
+            await useBookmarkStore.getState().deleteSelectedBookmarks()
           }}
           onCancel={() => setShowDeleteConfirm(false)}
         />
       )}
     </>
-  );
+  )
 }
+
+export default ActionBar

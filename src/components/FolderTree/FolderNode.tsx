@@ -2,61 +2,57 @@
  * FolderNode — 개별 폴더 행 컴포넌트
  */
 
-import React, { useMemo, useState, useRef } from 'react';
-import { useDndContext } from '@dnd-kit/core';
-import { SortableContext, useSortable, verticalListSortingStrategy } from '@dnd-kit/sortable';
-import { CSS } from '@dnd-kit/utilities';
+import { memo, useMemo, useState, useRef } from 'react'
+import { useDndContext } from '@dnd-kit/core'
+import { SortableContext, useSortable, verticalListSortingStrategy } from '@dnd-kit/sortable'
+import { CSS } from '@dnd-kit/utilities'
 import {
   ChevronRight, ChevronDown, FolderOpen, Folder,
   Plus, Trash2, Pencil, GripVertical,
-} from 'lucide-react';
-import type { BookmarkFolder } from '../../types/bookmark';
-import { useBookmarkStore } from '../../store/bookmarkStore';
-import { BookmarkItem } from '../BookmarkItem/BookmarkItem';
-import { ConfirmDrawer } from '../ConfirmDrawer/ConfirmDrawer';
-import { CustomCheckbox } from '../CustomCheckbox/CustomCheckbox';
-import { FolderTreeList } from './FolderTreeList';
+} from 'lucide-react'
+import type { BookmarkFolder } from '../../types/bookmark'
+import { useBookmarkStore } from '../../store/bookmarkStore'
+import BookmarkItem from '../BookmarkItem/BookmarkItem'
+import ConfirmDrawer from '../ConfirmDrawer/ConfirmDrawer'
+import { CustomCheckbox } from '../CustomCheckbox/CustomCheckbox'
+import { FolderTreeList } from './FolderTreeList'
 
 interface FolderNodeProps {
-  folder: BookmarkFolder;
-  depth: number;
-  parentId: string | undefined;
+  folder: BookmarkFolder
+  depth: number
+  parentId: string | undefined
 }
 
-export const FolderNode = React.memo(({ folder, depth, parentId }: FolderNodeProps) => {
+const FolderNode = memo(({ folder, depth, parentId }: FolderNodeProps) => {
   const {
     expandedFolderIds, toggleFolder, searchQuery,
     deleteFolder, selectedFolderIds, toggleFolderForSync,
     renameFolder,
-  } = useBookmarkStore();
-  const [showActions, setShowActions] = useState(false);
-  const [isDeleting, setIsDeleting] = useState(false);
-  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
-  const [isEditing, setIsEditing] = useState(false);
-  const [editName, setEditName] = useState(folder.name);
-  const inputRef = useRef<HTMLInputElement>(null);
-
-  // 모든 폴더 드래그 가능 (루트 포함)
-  const isDraggable = true;
+  } = useBookmarkStore()
+  const [showActions, setShowActions] = useState(false)
+  const [isDeleting, setIsDeleting] = useState(false)
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
+  const [isEditing, setIsEditing] = useState(false)
+  const [editName, setEditName] = useState(folder.name)
+  const inputRef = useRef<HTMLInputElement>(null)
 
   const {
     attributes, listeners, setNodeRef, transform, transition, isDragging,
   } = useSortable({
     id: folder.id,
     data: { type: 'folder', id: folder.id, parentId },
-    disabled: !isDraggable,
-  });
+  })
 
-  // useDndContext로 북마크가 이 폴더 위에 드래그 오버 중인지 계산
-  const { active, over: dndOver } = useDndContext();
+  // 북마크가 이 폴더 위에 드래그 오버 중인지 감지
+  const { active, over: dndOver } = useDndContext()
   const isBookmarkOver =
-    active?.data.current?.type === 'bookmark' && dndOver?.id === folder.id;
+    active?.data.current?.type === 'bookmark' && dndOver?.id === folder.id
 
-  const isExpanded = searchQuery ? true : expandedFolderIds.has(folder.id);
-  const isSelected = selectedFolderIds.has(folder.id);
-  const childCount = (folder.urls?.length || 0) + (folder.folders?.length || 0);
+  const isExpanded = searchQuery ? true : expandedFolderIds.has(folder.id)
+  const isSelected = selectedFolderIds.has(folder.id)
+  const childCount = (folder.urls?.length || 0) + (folder.folders?.length || 0)
 
-  const urlIds = useMemo(() => folder.urls?.map((u) => u.id) || [], [folder.urls]);
+  const urlIds = useMemo(() => folder.urls?.map((u) => u.id) || [], [folder.urls])
 
   const folderRowClass = [
     'folder-row',
@@ -65,63 +61,57 @@ export const FolderNode = React.memo(({ folder, depth, parentId }: FolderNodePro
     isDragging ? 'folder-row--dragging' : '',
   ]
     .filter(Boolean)
-    .join(' ');
+    .join(' ')
+
+  // 인라인 이름 수정 시작 — 액션 버튼(Pencil)과 더블클릭 모두 이 핸들러 사용
+  const handleStartEdit = (e: React.MouseEvent) => {
+    e.stopPropagation()
+    setEditName(folder.name)
+    setIsEditing(true)
+    setTimeout(() => inputRef.current?.select(), 0)
+  }
 
   const handleDeleteFolder = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    setShowDeleteConfirm(true);
-  };
-
-  const confirmDeleteFolder = async () => {
-    setShowDeleteConfirm(false);
-    setIsDeleting(true);
-    try {
-      await deleteFolder(folder.id);
-    } finally {
-      setIsDeleting(false);
-    }
-  };
+    e.stopPropagation()
+    setShowDeleteConfirm(true)
+  }
 
   const handleAddUrl = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    window.dispatchEvent(new CustomEvent('openAddUrl', { detail: { folderId: folder.id } }));
-  };
-
-  const handleRenameClick = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    setEditName(folder.name);
-    setIsEditing(true);
-    setTimeout(() => inputRef.current?.select(), 0);
-  };
-
-  const handleDoubleClick = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    setEditName(folder.name);
-    setIsEditing(true);
-    setTimeout(() => inputRef.current?.select(), 0);
-  };
+    e.stopPropagation()
+    window.dispatchEvent(new CustomEvent('openAddUrl', { detail: { folderId: folder.id } }))
+  }
 
   const handleRenameConfirm = async () => {
-    const trimmed = editName.trim();
+    const trimmed = editName.trim()
     if (trimmed && trimmed !== folder.name) {
-      await renameFolder(folder.id, trimmed);
+      await renameFolder(folder.id, trimmed)
     }
-    setIsEditing(false);
-  };
+    setIsEditing(false)
+  }
 
   const handleRenameKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter') {
-      handleRenameConfirm();
+      handleRenameConfirm()
     } else if (e.key === 'Escape') {
-      setIsEditing(false);
+      setIsEditing(false)
     }
-  };
+  }
+
+  const confirmDeleteFolder = async () => {
+    setShowDeleteConfirm(false)
+    setIsDeleting(true)
+    try {
+      await deleteFolder(folder.id)
+    } finally {
+      setIsDeleting(false)
+    }
+  }
 
   return (
     <li
       ref={setNodeRef}
-      className="list-none"
       style={{
+        // DnD 라이브러리가 매 프레임 계산하는 값 — 인라인 필수
         transform: CSS.Transform.toString(transform),
         transition,
       }}
@@ -129,20 +119,14 @@ export const FolderNode = React.memo(({ folder, depth, parentId }: FolderNodePro
       {/* 폴더 행 */}
       <div
         className={folderRowClass}
-        style={{ paddingLeft: `${depth * 16 + 4}px` }}
+        style={{ '--folder-row-indent': `${depth * 16 + 4}px` } as React.CSSProperties}
         onMouseEnter={() => setShowActions(true)}
         onMouseLeave={() => setShowActions(false)}
       >
-        {/* 드래그 핸들 (hover 시 표시) */}
-        {isDraggable && (
-          <span
-            className="folder-drag-handle"
-            {...attributes}
-            {...listeners}
-          >
-            <GripVertical size={12} />
-          </span>
-        )}
+        {/* 드래그 핸들 */}
+        <span className="folder-drag-handle" {...attributes} {...listeners}>
+          <GripVertical size={12} />
+        </span>
 
         {/* 접기/펼치기 */}
         <button className="folder-chevron-btn" onClick={() => toggleFolder(folder.id)}>
@@ -150,16 +134,16 @@ export const FolderNode = React.memo(({ folder, depth, parentId }: FolderNodePro
         </button>
 
         {/* 체크박스 */}
-        <div className="px-1.5">
+        <div className="folder-checkbox-wrap">
           <CustomCheckbox
             checked={isSelected}
-            onChange={(e) => { e.stopPropagation(); toggleFolderForSync(folder.id); }}
+            onChange={(e) => { e.stopPropagation(); toggleFolderForSync(folder.id) }}
             title="이 폴더를 Notebook에 전송"
           />
         </div>
 
         {/* 폴더 아이콘 */}
-        <span className="flex-shrink-0 mr-1.5 flex items-center" style={{ color: '#f59e0b' }}>
+        <span className="folder-icon">
           {isExpanded ? <FolderOpen size={14} /> : <Folder size={14} />}
         </span>
 
@@ -179,7 +163,7 @@ export const FolderNode = React.memo(({ folder, depth, parentId }: FolderNodePro
           <button
             className="folder-name-btn"
             onClick={() => toggleFolder(folder.id)}
-            onDoubleClick={handleDoubleClick}
+            onDoubleClick={handleStartEdit}
           >
             {folder.name}
           </button>
@@ -193,18 +177,10 @@ export const FolderNode = React.memo(({ folder, depth, parentId }: FolderNodePro
         {/* 액션 버튼 */}
         {showActions && !isEditing && (
           <div className="folder-actions">
-            <button
-              className="icon-action-btn"
-              onClick={handleAddUrl}
-              title="URL 추가"
-            >
+            <button className="icon-action-btn" onClick={handleAddUrl} title="URL 추가">
               <Plus size={12} />
             </button>
-            <button
-              className="icon-action-btn"
-              onClick={handleRenameClick}
-              title="이름 변경"
-            >
+            <button className="icon-action-btn" onClick={handleStartEdit} title="이름 변경">
               <Pencil size={12} />
             </button>
             <button
@@ -227,9 +203,9 @@ export const FolderNode = React.memo(({ folder, depth, parentId }: FolderNodePro
           )}
           {folder.urls && folder.urls.length > 0 && (
             <SortableContext items={urlIds} strategy={verticalListSortingStrategy}>
-              <ul className="list-none p-0 m-0">
+              <ul className="url-list">
                 {folder.urls.map((url) => (
-                  <li key={url.id} className="list-none">
+                  <li key={url.id}>
                     <BookmarkItem bookmark={url} parentId={folder.id} depth={depth + 1} />
                   </li>
                 ))}
@@ -250,5 +226,7 @@ export const FolderNode = React.memo(({ folder, depth, parentId }: FolderNodePro
         />
       )}
     </li>
-  );
-});
+  )
+})
+
+export default FolderNode

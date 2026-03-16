@@ -2,17 +2,17 @@
  * 검색바 컴포넌트 — 검색 입력 + 전체 접기/펼치기 버튼 통합
  */
 
-import { Search, X, ChevronsUp, ChevronsDown } from 'lucide-react';
-import { useBookmarkStore } from '../../store/bookmarkStore';
-import './SearchBar.css';
+import { Search, X, ChevronsUp, ChevronsDown } from 'lucide-react'
+import { useBookmarkStore } from '../../store/bookmarkStore'
+import './SearchBar.css'
 
 interface SearchBarProps {
-  onCollapseAll?: () => void;
-  onExpandAll?: () => void;
+  onCollapseAll?: () => void
+  onExpandAll?: () => void
 }
 
-export function SearchBar({ onCollapseAll, onExpandAll }: SearchBarProps) {
-  const { searchQuery, setSearchQuery } = useBookmarkStore();
+function SearchBar({ onCollapseAll, onExpandAll }: SearchBarProps) {
+  const { searchQuery, setSearchQuery } = useBookmarkStore()
 
   return (
     <div className="searchbar">
@@ -59,5 +59,7 @@ export function SearchBar({ onCollapseAll, onExpandAll }: SearchBarProps) {
         </button>
       )}
     </div>
-  );
+  )
 }
+
+export default SearchBar
