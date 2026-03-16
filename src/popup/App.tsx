@@ -4,35 +4,35 @@
  * - 부가: API 동기화 (헤더 아이콘 클릭 시 Sidebar 하단 패널로 오픈)
  */
 
-import { useEffect, useState } from 'react';
-import { Cloud, Sun, Moon, X } from 'lucide-react';
-import iconLogo from '../assets/icon48.png';
-import { useBookmarkStore } from '../store/bookmarkStore';
-import { Sidebar } from '../components/Sidebar/Sidebar';
+import { useEffect, useState } from 'react'
+import { Cloud, Sun, Moon, X } from 'lucide-react'
+import iconLogo from '../assets/icon48.png'
+import { useBookmarkStore } from '../store/bookmarkStore'
+import Sidebar from '../components/Sidebar/Sidebar'
 
 function App() {
-  const { loadBookmarks, isLoading, bookmarks } = useBookmarkStore();
+  const { loadBookmarks, isLoading, bookmarks } = useBookmarkStore()
   // Settings(API 동기화) 패널 열림 여부
-  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false)
 
   // 테마 상태 — localStorage에서 초기화하고 즉시 적용 (플리커 방지)
   const [theme, setTheme] = useState<'dark' | 'light'>(() => {
-    const saved = localStorage.getItem('theme') as 'dark' | 'light' | null;
-    const t = saved ?? 'dark';
-    document.documentElement.dataset.theme = t;
-    return t;
-  });
+    const saved = localStorage.getItem('theme') as 'dark' | 'light' | null
+    const t = saved ?? 'dark'
+    document.documentElement.dataset.theme = t
+    return t
+  })
 
   // 테마 변경 시 DOM + localStorage 동기화
   useEffect(() => {
-    document.documentElement.dataset.theme = theme;
-    localStorage.setItem('theme', theme);
-  }, [theme]);
+    document.documentElement.dataset.theme = theme
+    localStorage.setItem('theme', theme)
+  }, [theme])
 
   // 컴포넌트 마운트 시 북마크 로드
   useEffect(() => {
-    loadBookmarks();
-  }, [loadBookmarks]);
+    loadBookmarks()
+  }, [loadBookmarks])
 
   return (
     <div className="app">
@@ -89,7 +89,7 @@ function App() {
         )}
       </main>
     </div>
-  );
+  )
 }
 
-export default App;
+export default App

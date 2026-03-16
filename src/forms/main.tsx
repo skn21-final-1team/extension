@@ -1,4 +1,4 @@
-import { createRoot } from 'react-dom/client';
-import { FormApp } from './FormApp';
+import { createRoot } from 'react-dom/client'
+import FormApp from './FormApp'
 
-createRoot(document.getElementById('root')!).render(<FormApp />);
+createRoot(document.getElementById('root')!).render(<FormApp />)
