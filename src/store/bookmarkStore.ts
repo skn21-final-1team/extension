@@ -3,12 +3,12 @@
  * 기존 import (`useBookmarkStore`)는 변경 없음
  */
 
-import { create } from 'zustand';
-import type { BookmarkState } from './types';
-import { createUiSlice } from './slices/uiSlice';
-import { createSelectionSlice } from './slices/selectionSlice';
-import { createCrudSlice } from './slices/crudSlice';
-import { createSyncSlice } from './slices/syncSlice';
+import { create } from 'zustand'
+import type { BookmarkState } from './types'
+import { createUiSlice } from './slices/uiSlice'
+import { createSelectionSlice } from './slices/selectionSlice'
+import { createCrudSlice } from './slices/crudSlice'
+import { createSyncSlice } from './slices/syncSlice'
 
 export const useBookmarkStore = create<BookmarkState>((set, get) => ({
   // ── 초기 상태 ──
@@ -27,4 +27,4 @@ export const useBookmarkStore = create<BookmarkState>((set, get) => ({
   ...createSelectionSlice(set, get),
   ...createCrudSlice(set, get),
   ...createSyncSlice(set, get),
-}));
+}))

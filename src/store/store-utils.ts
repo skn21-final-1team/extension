@@ -1,17 +1,17 @@
-import { BookmarkFolderList } from '../types/bookmark';
+import type { BookmarkFolderList, ExtensionBookmarkNode } from '../types/bookmark'
 
 /**
  * 북마크 트리 내의 모든 URL ID를 재귀적으로 찾아 반환합니다.
  */
 export const collectUrlIds = (list: BookmarkFolderList, ids: string[] = []): string[] => {
   for (const item of list) {
-    if (item.folders) collectUrlIds(item.folders, ids);
+    if (item.folders) collectUrlIds(item.folders, ids)
     if (item.urls) {
-      for (const u of item.urls) ids.push(u.id);
+      for (const u of item.urls) ids.push(u.id)
     }
   }
-  return ids;
-};
+  return ids
+}
 
 /**
  * 특정 폴더의 모든 하위 URL ID들을 수집합니다. (하위 폴더 포함)
@@ -22,17 +22,17 @@ export const collectFolderUrlIds = (
 ): string[] => {
   for (const folder of bookmarks) {
     if (folder.id === folderId) {
-      const urlIds = folder.urls?.map(u => u.id) || [];
-      const subFolderIds = folder.folders ? collectUrlIds(folder.folders) : [];
-      return [...urlIds, ...subFolderIds];
+      const urlIds = folder.urls?.map(u => u.id) || []
+      const subFolderIds = folder.folders ? collectUrlIds(folder.folders) : []
+      return [...urlIds, ...subFolderIds]
     }
     if (folder.folders) {
-      const result = collectFolderUrlIds(folder.folders, folderId);
-      if (result.length > 0) return result;
+      const result = collectFolderUrlIds(folder.folders, folderId)
+      if (result.length > 0) return result
     }
   }
-  return [];
-};
+  return []
+}
 
 /**
  * 선택된 북마크 ID만 포함하는 새로운 트리 구조를 반환합니다.
@@ -41,26 +41,26 @@ export const filterBySelectedIds = (
   list: BookmarkFolderList,
   selectedIds: Set<string>
 ): BookmarkFolderList => {
-  const result: BookmarkFolderList = [];
+  const result: BookmarkFolderList = []
 
   for (const folder of list) {
-    const filteredUrls = (folder.urls || []).filter(u => selectedIds.has(u.id));
+    const filteredUrls = (folder.urls || []).filter(u => selectedIds.has(u.id))
     const filteredFolders = folder.folders
       ? filterBySelectedIds(folder.folders, selectedIds)
-      : undefined;
+      : undefined
 
-    const hasContent = filteredUrls.length > 0 || (filteredFolders && filteredFolders.length > 0);
+    const hasContent = filteredUrls.length > 0 || (filteredFolders && filteredFolders.length > 0)
     if (hasContent) {
       result.push({
         ...folder,
         urls: filteredUrls,
         folders: filteredFolders,
-      });
+      })
     }
   }
 
-  return result;
-};
+  return result
+}
 
 /**
  * 특정 폴더의 모든 하위 폴더 ID를 재귀적으로 수집합니다.
@@ -70,11 +70,11 @@ export const collectSubFolderIds = (
   ids: string[] = []
 ): string[] => {
   for (const folder of folders) {
-    ids.push(folder.id);
-    if (folder.folders) collectSubFolderIds(folder.folders, ids);
+    ids.push(folder.id)
+    if (folder.folders) collectSubFolderIds(folder.folders, ids)
   }
-  return ids;
-};
+  return ids
+}
 
 /**
  * 특정 기준 폴더의 하위 폴더 ID들을 찾습니다.
@@ -85,15 +85,15 @@ export const getSubFolderIds = (
 ): string[] => {
   for (const folder of folders) {
     if (folder.id === targetFolderId) {
-      return folder.folders ? collectSubFolderIds(folder.folders) : [];
+      return folder.folders ? collectSubFolderIds(folder.folders) : []
     }
     if (folder.folders) {
-      const result = getSubFolderIds(folder.folders, targetFolderId);
-      if (result.length > 0) return result;
+      const result = getSubFolderIds(folder.folders, targetFolderId)
+      if (result.length > 0) return result
     }
   }
-  return [];
-};
+  return []
+}
 
 /**
  * 대상 URL이 속한 모든 부모 폴더 ID 경로를 재귀적으로 찾습니다.
@@ -105,15 +105,15 @@ export const findParentFolderIds = (
 ): string[] | null => {
   for (const folder of folders) {
     if (folder.urls?.some(u => u.id === urlId)) {
-      return [...parentIds, folder.id];
+      return [...parentIds, folder.id]
     }
     if (folder.folders) {
-      const result = findParentFolderIds(folder.folders, urlId, [...parentIds, folder.id]);
-      if (result) return result;
+      const result = findParentFolderIds(folder.folders, urlId, [...parentIds, folder.id])
+      if (result) return result
     }
   }
-  return null;
-};
+  return null
+}
 
 /**
  * 특정 폴더의 모든 조상 폴더 ID를 찾아 반환합니다.
@@ -125,30 +125,28 @@ export const findAncestorFolderIds = (
 ): string[] | null => {
   for (const folder of folders) {
     if (folder.id === targetFolderId) {
-      return ancestors;
+      return ancestors
     }
     if (folder.folders) {
-      const result = findAncestorFolderIds(folder.folders, targetFolderId, [...ancestors, folder.id]);
-      if (result) return result;
+      const result = findAncestorFolderIds(folder.folders, targetFolderId, [...ancestors, folder.id])
+      if (result) return result
     }
   }
-  return null;
-};
+  return null
+}
 
 /**
  * BookmarkFolderList 뼈대를 백엔드 수신 타입인 ExtensionBookmarkNode 배열로 변환합니다.
  */
 export const transformToExtensionNode = (
   list: BookmarkFolderList
-): import('../types/bookmark').ExtensionBookmarkNode[] => {
+): ExtensionBookmarkNode[] => {
   return list.map(item => {
-    const folderTitle = item.name || 'No Title';
-
-    const node: import('../types/bookmark').ExtensionBookmarkNode = {
+    const node: ExtensionBookmarkNode = {
       id: item.id,
-      title: folderTitle,
-      children: []
-    };
+      title: item.name || 'No Title',
+      children: [],
+    }
 
     if (item.urls) {
       item.urls.forEach(u => {
@@ -156,15 +154,15 @@ export const transformToExtensionNode = (
           id: u.id,
           title: u.title,
           url: u.url,
-          children: []
-        });
-      });
+          children: [],
+        })
+      })
     }
 
     if (item.folders) {
-      node.children = [...node.children, ...transformToExtensionNode(item.folders)];
+      node.children = [...node.children, ...transformToExtensionNode(item.folders)]
     }
 
-    return node;
-  });
-};
+    return node
+  })
+}
