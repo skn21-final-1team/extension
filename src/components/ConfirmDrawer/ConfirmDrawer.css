@@ -1,0 +1,23 @@
+/* ── ConfirmDrawer 컴포넌트 ── */
+
+.confirm-drawer-overlay {
+  z-index: 70;
+}
+
+/* drawer-head-icon variant — icon color via currentColor 상속 */
+.confirm-drawer-icon--danger {
+  background: rgba(248, 113, 113, 0.15);
+  color: var(--error-color);
+}
+
+.confirm-drawer-icon--default {
+  background: rgba(96, 165, 250, 0.15);
+  color: var(--accent-color);
+}
+
+.confirm-drawer-message {
+  font-size: var(--font-size-sm);
+  line-height: 1.6;
+  color: var(--text-secondary);
+  margin: 0;
+}

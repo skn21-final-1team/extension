@@ -1,12 +1,13 @@
-/* 태그 배지 스타일 */
+/* ── TagBadge 컴포넌트 ── */
 
 .tag-badge {
   display: inline-flex;
   align-items: center;
-  padding: 1px 6px;
-  background-color: var(--tag-bg);
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 10px;
+  font-weight: 500;
+  background: var(--tag-bg);
   color: var(--tag-text);
-  font-size: var(--font-size-xs);
-  border-radius: 10px;
-  white-space: nowrap;
+  flex-shrink: 0;
 }

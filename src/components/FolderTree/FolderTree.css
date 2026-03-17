@@ -16,6 +16,7 @@
   align-items: center;
   height: 30px;
   border-radius: 5px;
+  padding-left: var(--folder-row-indent, 4px);
   padding-right: 4px;
   transition: background 0.1s ease;
   cursor: default;
@@ -139,6 +140,27 @@
 /* 드래그 중 반투명 */
 .folder-row--dragging {
   opacity: 0.35;
+}
+
+/* 폴더 아이콘 */
+.folder-icon {
+  color: var(--folder-color);
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  margin-right: 6px;
+}
+
+/* 체크박스 래퍼 */
+.folder-checkbox-wrap {
+  padding: 0 6px;
+}
+
+/* URL 목록 — ul 초기화 */
+.url-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
 }
 
 /* 자식 컨테이너 */
