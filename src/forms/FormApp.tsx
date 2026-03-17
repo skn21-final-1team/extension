@@ -169,8 +169,13 @@ function AddUrlForm({ folders }: { folders: FolderOpt[] }) {
     const targetId = folderId || folders[0]?.id
     if (!targetId) { setError('저장할 폴더를 선택해주세요.'); return }
     setSaving(true)
-    await chrome.bookmarks.create({ title: title.trim(), url, parentId: targetId })
-    window.close()
+    try {
+      await chrome.bookmarks.create({ title: title.trim(), url, parentId: targetId })
+      window.close()
+    } catch {
+      setError('북마크 추가에 실패했습니다.')
+      setSaving(false)
+    }
   }
 
   return (

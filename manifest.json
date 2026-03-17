@@ -10,8 +10,7 @@
     "tabs"
   ],
   "host_permissions": [
-    "https://*/*",
-    "http://*/*"
+    "https://kalpie.net/*"
   ],
   "content_security_policy": {
     "extension_pages": "script-src 'self'; object-src 'self'"
@@ -34,5 +33,5 @@
     "service_worker": "src/background/index.ts",
     "type": "module"
   },
-  "homepage_url": "https://github.com/skn21-final-1team/extension.git"
+  "homepage_url": "https://kalpie.net"
 }
