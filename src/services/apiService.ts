@@ -25,41 +25,56 @@ const fetchApi = async <T>(
   retries = 2,
   timeoutMs = 10000
 ): Promise<ApiResponse<T>> => {
-  try {
-    const { headers: optionHeaders, abortSignal, ...restOptions } = options || {}
+  const { headers: optionHeaders, abortSignal, ...restOptions } = options || {}
 
-    const headers: Record<string, string> = {
-      'Content-Type': 'application/json',
-      ...(optionHeaders as Record<string, string>),
-    }
+  const headers: Record<string, string> = {
+    'Content-Type': 'application/json',
+    ...(optionHeaders as Record<string, string>),
+  }
 
-    const timeoutController = new AbortController()
-    const timeoutId = setTimeout(() => timeoutController.abort(), timeoutMs)
+  // try 밖에 선언 — catch/finally에서도 접근 가능
+  const timeoutController = new AbortController()
+  const timeoutId = setTimeout(() => timeoutController.abort(), timeoutMs)
 
-    let finalSignal: AbortSignal
+  let finalSignal: AbortSignal
+  let cleanupUserAbortListener: (() => void) | undefined
 
-    if (abortSignal) {
-      if (typeof AbortSignal.any === 'function') {
-        finalSignal = AbortSignal.any([abortSignal, timeoutController.signal])
-      } else {
-        finalSignal = abortSignal
-        timeoutController.signal.addEventListener('abort', () => {
-          if (!abortSignal.aborted) {
-            console.warn('[API] Request timeout')
-          }
-        }, { once: true })
-      }
+  if (abortSignal) {
+    if (typeof AbortSignal.any === 'function') {
+      finalSignal = AbortSignal.any([abortSignal, timeoutController.signal])
     } else {
-      finalSignal = timeoutController.signal
-    }
+      // AbortSignal.any 미지원 환경 — 두 신호를 수동으로 병합
+      const mergedController = new AbortController()
+      finalSignal = mergedController.signal
 
+      const abort = (reason?: unknown) => {
+        if (!mergedController.signal.aborted) mergedController.abort(reason)
+      }
+
+      if (abortSignal.aborted) {
+        abort(abortSignal.reason)
+      } else {
+        const handler = () => abort(abortSignal.reason)
+        abortSignal.addEventListener('abort', handler, { once: true })
+        cleanupUserAbortListener = () => abortSignal.removeEventListener('abort', handler)
+      }
+
+      timeoutController.signal.addEventListener(
+        'abort',
+        () => abort(timeoutController.signal.reason),
+        { once: true }
+      )
+    }
+  } else {
+    finalSignal = timeoutController.signal
+  }
+
+  try {
     const response = await fetch(`${API_BASE_URL}${endpoint}`, {
       ...restOptions,
       headers,
       signal: finalSignal,
     })
-
-    clearTimeout(timeoutId)
 
     if (!response.ok) {
       if (response.status >= 500 && retries > 0) {
@@ -94,6 +109,9 @@ const fetchApi = async <T>(
     }
   } catch (error) {
     if (error instanceof Error && error.name === 'AbortError') {
+      if (timeoutController.signal.aborted) {
+        return { success: false, error: `요청 시간이 초과되었습니다. (${timeoutMs / 1000}초)` }
+      }
       return { success: false, error: '전송이 취소되었습니다.' }
     }
 
@@ -109,6 +127,10 @@ const fetchApi = async <T>(
     }
     const message = error instanceof Error ? error.message : '알 수 없는 오류가 발생했습니다.'
     return { success: false, error: message }
+  } finally {
+    // 성공/실패/재시도 모든 경로에서 타이머와 리스너 정리
+    clearTimeout(timeoutId)
+    cleanupUserAbortListener?.()
   }
 }
 

@@ -32,7 +32,7 @@ function FolderSelect({
 }) {
   return (
     <select value={value} onChange={(e) => onChange(e.target.value)}>
-      {includeRoot && <option value="">최상위 (루트)</option>}
+      {includeRoot && <option value="">선택해주세요</option>}
       {folders.map((f) => (
         <option key={f.id} value={f.id}>
           {'\u00A0\u00A0'.repeat(f.level)}{f.level > 0 ? '└ ' : ''}{f.name}
@@ -50,7 +50,7 @@ function FolderForm({ folders }: { folders: FolderOpt[] }) {
 
   const handleCreate = async () => {
     if (!name.trim()) { setError('폴더 이름을 입력해주세요.'); return }
-    await chrome.bookmarks.create({ title: name.trim(), parentId: parentId || undefined })
+    await chrome.bookmarks.create({ title: name.trim(), parentId: parentId || '2' })
     window.close()
   }
 

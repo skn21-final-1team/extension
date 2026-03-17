@@ -14,6 +14,10 @@ type CrudSlice = Pick<
   | 'createFolder' | 'deleteFolder' | 'renameFolder'
 >
 
+// Chrome Bookmarks API 예약 ID — 삭제 불가 시스템 노드
+// '0' = 루트(가상), '1' = Bookmarks Bar, '2' = Other Bookmarks, '3' = Mobile Bookmarks
+const CHROME_SYSTEM_IDS = new Set(['0', '1', '2', '3'])
+
 export const createCrudSlice: SliceCreator<CrudSlice> = (set, get) => ({
   addBookmark: async (title: string, url: string, parentId?: string) => {
     set({ isLoading: true, error: null })
@@ -83,8 +87,6 @@ export const createCrudSlice: SliceCreator<CrudSlice> = (set, get) => ({
       }
       findTopLevel(bookmarks, false)
 
-      // Chrome 시스템 루트 폴더는 삭제 불가
-      const CHROME_SYSTEM_IDS = new Set(['0', '1', '2', '3'])
       const deletableFolderIds = topLevelFolderIds.filter(id => !CHROME_SYSTEM_IDS.has(id))
 
       // 최상위 폴더를 순차 삭제
@@ -107,14 +109,16 @@ export const createCrudSlice: SliceCreator<CrudSlice> = (set, get) => ({
 
       // 폴더 삭제로 이미 제거된 URL 제외 후 개별 삭제
       const remainingUrlIds = Array.from(selectedIds).filter(id => !deletedFolderUrlIds.has(id))
-      await Promise.allSettled(
-        remainingUrlIds.map(id => bookmarkService.remove(id).catch(() => {}))
+      const urlResults = await Promise.allSettled(
+        remainingUrlIds.map(id => bookmarkService.remove(id))
       )
+      const failedUrls = urlResults.filter(r => r.status === 'rejected').length
 
+      const totalFailed = failedFolders + failedUrls
       set({
         selectedIds: new Set(),
         selectedFolderIds: new Set(),
-        ...(failedFolders > 0 ? { error: `${failedFolders}개 폴더 삭제에 실패했습니다.` } : {}),
+        ...(totalFailed > 0 ? { error: `${totalFailed}개 항목 삭제에 실패했습니다.` } : {}),
       })
       await loadBookmarks()
     } catch (error) {

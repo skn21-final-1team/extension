@@ -61,8 +61,9 @@ function Sidebar({ isSettingsOpen, onCloseSettings }: SidebarProps) {
         await chrome.storage.local.set({
           formTabData: { title: tab.title || tab.url, url: tab.url, favIconUrl: tab.favIconUrl },
         })
-      } catch {
-        // 탭 정보 저장 실패 시에도 폼은 열림
+      } catch (error) {
+        // 탭 정보 조회 실패 시에도 폼은 빈 상태로 열림
+        console.warn('[Sidebar] 탭 정보 조회 실패:', error)
       }
     }
     setActiveForm(type)
