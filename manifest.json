@@ -10,7 +10,7 @@
     "tabs"
   ],
   "host_permissions": [
-    "https://kalpie.net/*"
+    "https://api.kalpie.net/*"
   ],
   "content_security_policy": {
     "extension_pages": "script-src 'self'; object-src 'self'"
