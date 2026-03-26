@@ -1,6 +1,6 @@
 {
   "name": "bookalpie-extension",
-  "version": "3.0.0",
+  "version": "3.0.1",
   "description": "Bookalpie - Chrome 북마크를 Kalpie Notebook으로 전송하는 확장 프로그램",
   "type": "module",
   "scripts": {

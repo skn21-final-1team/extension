@@ -6,7 +6,7 @@
 import { useState, useEffect, useMemo } from 'react'
 import { X, AlertCircle } from 'lucide-react'
 import { useBookmarkStore } from '../../store/bookmarkStore'
-import type { BookmarkFolder } from '../../types/bookmark'
+import { flattenFolders, type FolderOption } from '../../store/store-utils'
 import type { QuickSaveFolder } from '../../hooks/useQuickSave'
 
 export type FormPanelType = 'folder' | 'saveTab' | 'addUrl' | 'quickSaveConfig'
@@ -24,21 +24,11 @@ interface FormPanelProps {
   defaultFolderId?: string
 }
 
-interface FolderOpt { id: string; name: string; level: number }
-
-function flattenFolders(nodes: BookmarkFolder[], depth = 0, out: FolderOpt[] = []): FolderOpt[] {
-  for (const f of nodes) {
-    out.push({ id: f.id, name: f.name, level: depth })
-    if (f.folders) flattenFolders(f.folders, depth + 1, out)
-  }
-  return out
-}
-
 function FolderSelect({
   value, onChange, folders, includeRoot = false,
 }: {
   value: string; onChange: (v: string) => void
-  folders: FolderOpt[]; includeRoot?: boolean
+  folders: FolderOption[]; includeRoot?: boolean
 }) {
   return (
     <select className="input fp-input" value={value} onChange={(e) => onChange(e.target.value)}>
@@ -53,7 +43,7 @@ function FolderSelect({
 }
 
 // ── 폴더 생성 ──
-function FolderForm({ folders, onClose }: { folders: FolderOpt[]; onClose: () => void }) {
+function FolderForm({ folders, onClose }: { folders: FolderOption[]; onClose: () => void }) {
   const [name, setName] = useState('')
   const [parentId, setParentId] = useState('')
   const [error, setError] = useState('')
@@ -96,7 +86,7 @@ function FolderForm({ folders, onClose }: { folders: FolderOpt[]; onClose: () =>
 }
 
 // ── 현재 탭 저장 ──
-function SaveTabForm({ folders, onClose }: { folders: FolderOpt[]; onClose: () => void }) {
+function SaveTabForm({ folders, onClose }: { folders: FolderOption[]; onClose: () => void }) {
   const [tabInfo, setTabInfo] = useState<{ title: string; url: string; favIconUrl?: string } | null>(null)
   const [title, setTitle] = useState('')
   const [folderId, setFolderId] = useState('')
@@ -171,7 +161,7 @@ function SaveTabForm({ folders, onClose }: { folders: FolderOpt[]; onClose: () =
 }
 
 // ── URL 추가 ──
-function AddUrlForm({ folders, onClose, defaultFolderId }: { folders: FolderOpt[]; onClose: () => void; defaultFolderId?: string }) {
+function AddUrlForm({ folders, onClose, defaultFolderId }: { folders: FolderOption[]; onClose: () => void; defaultFolderId?: string }) {
   const [title, setTitle] = useState('')
   const [url, setUrl] = useState('')
   const [folderId, setFolderId] = useState(defaultFolderId || '')
@@ -240,7 +230,7 @@ function AddUrlForm({ folders, onClose, defaultFolderId }: { folders: FolderOpt[
 
 // ── 빠른저장 폴더 설정 ──
 function QuickSaveConfigForm({ folders, onClose, config }: {
-  folders: FolderOpt[]; onClose: () => void; config: QuickSaveConfigProps
+  folders: FolderOption[]; onClose: () => void; config: QuickSaveConfigProps
 }) {
   const [folderId, setFolderId] = useState(config.currentFolder?.id || (folders[0]?.id ?? ''))
 
