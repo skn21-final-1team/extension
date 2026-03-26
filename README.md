@@ -2,16 +2,19 @@
 
 Chrome 북마크를 Kalpie Notebook으로 전송하여 AI 기반 Q&A와 문서 생성에 활용할 수 있는 확장 프로그램입니다.
 
+> **[사용 가이드 (USAGE_GUIDE.md)](./USAGE_GUIDE.md)** | **[개인정보 처리방침 (PRIVACY_POLICY.md)](./PRIVACY_POLICY.md)** | **[Privacy (PRIVACY.md)](./PRIVACY.md)**
+
 ## 주요 기능
 
 ### 북마크 관리
 - **폴더 트리**: VS Code 스타일 계층적 폴더/북마크 트리
-- **드래그 앤 드롭**: 폴더/북마크 순서 변경, 다른 폴더로 이동 (dnd-kit)
+- **드래그 앤 드롭**: 폴더/북마크 순서 변경, 다른 폴더로 이동
 - **인라인 수정**: 폴더 더블클릭으로 이름 변경, 북마크 편집 미니 카드
-- **검색**: 폴더명/북마크 제목/URL 실시간 검색 필터
+- **검색**: 폴더명/북마크 제목/URL 검색 필터 (300ms 디바운싱)
 - **전체 선택/해제**: 체크박스로 폴더 단위 또는 전체 선택
 - **현재 탭 저장**: 열린 탭을 원하는 폴더에 북마크로 저장
 - **퀵 세이브**: 지정 폴더에 한 번 클릭으로 북마크 저장
+- **다크/라이트 테마**: 원클릭 테마 전환, 설정 자동 저장
 
 ### Kalpie Notebook 연동
 - **Sync Key 인증**: Notebook에서 발급받은 키로 안전하게 인증
@@ -19,16 +22,36 @@ Chrome 북마크를 Kalpie Notebook으로 전송하여 AI 기반 Q&A와 문서 �
 - **전송 취소**: 진행 중 언제든 취소 가능
 - **개인정보 보호**: 사용자 동의 후 선택한 항목만 전송
 
+## 화면 구성
+
+```
+┌─────────────────────────────────┐
+│  🔖 Bookalpie       ☀️  ☁️  ✕  │  ← 헤더 (로고, 테마, 동기화, 닫기)
+├─────────────────────────────────┤
+│  🔍 검색창              ⬆  ⬇   │  ← 검색 + 전체 접기/펼치기
+├─────────────────────────────────┤
+│  📁 북마크 바                    │
+│    📄 자주 가는 사이트            │
+│  📁 기타 북마크                  │  ← 폴더 트리 (VS Code 스타일)
+│    📁 개발                      │
+│      📄 GitHub                  │
+│      📄 Stack Overflow          │
+├─────────────────────────────────┤
+│ ☐  ⚡빠른저장  📌현재탭  📁폴더  🔗URL추가 │ ← 하단 액션 바
+├─────────────────────────────────┤
+│  (폼 패널 / 동기화 설정)          │  ← 필요 시 펼쳐지는 하단 패널
+└─────────────────────────────────┘
+```
+
 ## 빠른 시작
 
+### Chrome Web Store
+Chrome Web Store에서 **"Bookalpie"** 검색 → **"Chrome에 추가"** 클릭
+
+### 개발자 모드
 ```bash
-# 의존성 설치
 pnpm install
-
-# 빌드
 pnpm build
-
-# Chrome에 로드
 # chrome://extensions → 개발자 모드 → 압축해제된 확장 프로그램 로드 → dist/ 선택
 ```
 
@@ -55,7 +78,22 @@ pnpm build
   apiService.ts ──→ Kalpie Backend API
 ```
 
+## 기술 스택
+
+| 항목 | 기술 |
+|------|------|
+| UI | React 19 + TypeScript 5.3 |
+| 빌드 | Vite 5 + CRXJS (Manifest V3) |
+| 상태관리 | Zustand 5 (슬라이스 패턴) |
+| 스타일 | Tailwind CSS 4 + 컴포넌트별 CSS |
+| 드래그 앤 드롭 | @dnd-kit/core + @dnd-kit/sortable |
+| 아이콘 | lucide-react |
+| 패키지 매니저 | pnpm |
+
 ## 프로젝트 구조
+
+<details>
+<summary>전체 구조 보기</summary>
 
 ```
 extension/src/
@@ -75,7 +113,7 @@ extension/src/
 │   │   └── FolderTree.css
 │   ├── BookmarkItem/               # 개별 북마크 행 (useSortable)
 │   ├── BookmarkEditor/             # 미니 카드 — 북마크 추가/수정
-│   ├── ActionBar/                  # 하단 액션 바 (선택, 삭제, 폼 열기)
+│   ├── ActionBar/                  # 하단 액션 바 (선택, 삭제, 빠른저장, 폼 열기)
 │   ├── FormPanel/                  # 하단 폼 (폴더 생성, 탭 저장, URL 추가, 퀵세이브 설정)
 │   ├── ConfirmDrawer/              # 삭제 확인 드로어
 │   ├── SearchBar/                  # 검색 입력 + 전체 접기/펼치기
@@ -89,7 +127,7 @@ extension/src/
 ├── store/
 │   ├── bookmarkStore.ts            # Zustand 스토어 (슬라이스 조합)
 │   ├── types.ts                    # BookmarkState, SliceCreator 타입
-│   ├── store-utils.ts              # 트리 유틸 (collectUrlIds, filterBySelectedIds 등)
+│   ├── store-utils.ts              # 트리 유틸 (flattenFolders, collectUrlIds 등)
 │   └── slices/
 │       ├── selectionSlice.ts       # 선택 로직 (toggleSelect, selectAll 등)
 │       ├── crudSlice.ts            # CRUD (add/update/delete/move, 폴더 관리)
@@ -115,17 +153,7 @@ extension/src/
     └── index.ts
 ```
 
-## 기술 스택
-
-| 항목 | 기술 |
-|------|------|
-| UI | React 19 + TypeScript 5.3 |
-| 빌드 | Vite 5 + CRXJS (Manifest V3) |
-| 상태관리 | Zustand 5 (슬라이스 패턴) |
-| 스타일 | Tailwind CSS 4 + 컴포넌트별 CSS |
-| 드래그 앤 드롭 | @dnd-kit/core + @dnd-kit/sortable |
-| 아이콘 | lucide-react |
-| 패키지 매니저 | pnpm |
+</details>
 
 ## 상태 관리 설계
 
@@ -139,7 +167,7 @@ bookmarkStore.ts (조합)
 └── syncSlice      → Sync Key 인증, 서버 전송, 전송 취소
 ```
 
-`store-utils.ts`에서 트리 순회 유틸 (`collectSubFolderIds`, `collectUrlIds`, `filterBySelectedIds` 등)을 분리하여 슬라이스 간 공유합니다.
+`store-utils.ts`에서 트리 순회 유틸 (`flattenFolders`, `collectSubFolderIds`, `collectUrlIds`, `filterBySelectedIds` 등)을 분리하여 슬라이스 간 공유합니다.
 
 ## API 연동
 
@@ -160,6 +188,8 @@ Body: { nodes: ExtensionBookmarkNode[] }
 - Sync Key를 통한 노트북 단위 인증
 - HTTPS 통신 (`api.kalpie.net`)
 - 사용자 동의 필수 (동의 체크박스)
+
+자세한 내용은 [개인정보 처리방침](./PRIVACY_POLICY.md)을 참고하세요.
 
 ## 버전 히스토리
 
