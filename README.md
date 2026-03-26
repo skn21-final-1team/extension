@@ -2,7 +2,11 @@
 
 Chrome 북마크를 Kalpie Notebook으로 전송하여 AI 기반 Q&A와 문서 생성에 활용할 수 있는 확장 프로그램입니다.
 
-> **[사용 가이드 (USAGE_GUIDE.md)](./USAGE_GUIDE.md)** | **[개인정보 처리방침 (PRIVACY_POLICY.md)](./PRIVACY_POLICY.md)** | **[Privacy (PRIVACY.md)](./PRIVACY.md)**
+[![Chrome Web Store](https://img.shields.io/badge/Chrome%20Web%20Store-Bookalpie-4285F4?logo=googlechrome&logoColor=white)](https://chromewebstore.google.com/detail/bookalpie/npfdkpgpijiokpmbjkgmbfchfnbahdhd?hl=ko&gl=DE) | **[사용 가이드](./USAGE_GUIDE.md)** | **[개인정보 처리방침](./PRIVACY_POLICY.md)** | **[Privacy](./PRIVACY.md)**
+
+## 왜 만들었나요?
+
+웹 브라우저의 보안 정책상, 외부 웹 앱에서는 사용자의 북마크에 직접 접근할 수 없습니다. Kalpie Notebook에 북마크 URL을 소스로 활용하려면 Chrome 확장 프로그램이 필요했고, 단순히 북마크를 전송하는 도구를 넘어 **북마크를 직접 관리할 수 있는 확장 프로그램**으로 발전시켰습니다.
 
 ## 주요 기능
 
