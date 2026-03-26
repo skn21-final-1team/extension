@@ -2,29 +2,24 @@
 
 Chrome 북마크를 Kalpie Notebook으로 전송하여 AI 기반 Q&A와 문서 생성에 활용할 수 있는 확장 프로그램입니다.
 
-[![Chrome Web Store](https://img.shields.io/badge/Chrome%20Web%20Store-Bookalpie-4285F4?logo=googlechrome&logoColor=white)](https://chromewebstore.google.com/detail/bookalpie/npfdkpgpijiokpmbjkgmbfchfnbahdhd?hl=ko&gl=DE) | **[사용 가이드](./USAGE_GUIDE.md)** | **[개인정보 처리방침](./PRIVACY_POLICY.md)** | **[Privacy](./PRIVACY.md)**
+[![Chrome Web Store](https://img.shields.io/badge/Chrome%20Web%20Store-Bookalpie-4285F4?logo=googlechrome&logoColor=white)](https://chromewebstore.google.com/detail/bookalpie/npfdkpgpijiokpmbjkgmbfchfnbahdhd?hl=ko&gl=DE)
+**[사용 가이드](./USAGE_GUIDE.md)** | **[개인정보 처리방침](./PRIVACY_POLICY.md)** | **[Privacy](./PRIVACY.md)**
 
 ## 왜 만들었나요?
 
 웹 브라우저의 보안 정책상, 외부 웹 앱에서는 사용자의 북마크에 직접 접근할 수 없습니다. Kalpie Notebook에 북마크 URL을 소스로 활용하려면 Chrome 확장 프로그램이 필요했고, 단순히 북마크를 전송하는 도구를 넘어 **북마크를 직접 관리할 수 있는 확장 프로그램**으로 발전시켰습니다.
 
-## 주요 기능
+## 빠른 시작
 
-### 북마크 관리
-- **폴더 트리**: VS Code 스타일 계층적 폴더/북마크 트리
-- **드래그 앤 드롭**: 폴더/북마크 순서 변경, 다른 폴더로 이동
-- **인라인 수정**: 폴더 더블클릭으로 이름 변경, 북마크 편집 미니 카드
-- **검색**: 폴더명/북마크 제목/URL 검색 필터 (300ms 디바운싱)
-- **전체 선택/해제**: 체크박스로 폴더 단위 또는 전체 선택
-- **현재 탭 저장**: 열린 탭을 원하는 폴더에 북마크로 저장
-- **퀵 세이브**: 지정 폴더에 한 번 클릭으로 북마크 저장
-- **다크/라이트 테마**: 원클릭 테마 전환, 설정 자동 저장
+### Chrome Web Store
+Chrome Web Store에서 **"Bookalpie"** 검색 → **"Chrome에 추가"** 클릭
 
-### Kalpie Notebook 연동
-- **Sync Key 인증**: Notebook에서 발급받은 키로 안전하게 인증
-- **선택 전송**: 체크한 폴더/북마크만 Notebook으로 전송
-- **전송 취소**: 진행 중 언제든 취소 가능
-- **개인정보 보호**: 사용자 동의 후 선택한 항목만 전송
+### 개발자 모드
+```bash
+pnpm install
+pnpm build
+# chrome://extensions → 개발자 모드 → 압축해제된 확장 프로그램 로드 → dist/ 선택
+```
 
 ## 화면 구성
 
@@ -47,17 +42,34 @@ Chrome 북마크를 Kalpie Notebook으로 전송하여 AI 기반 Q&A와 문서 �
 └─────────────────────────────────┘
 ```
 
-## 빠른 시작
+## 주요 기능
 
-### Chrome Web Store
-Chrome Web Store에서 **"Bookalpie"** 검색 → **"Chrome에 추가"** 클릭
+### 북마크 관리
+- **폴더 트리**: VS Code 스타일 계층적 폴더/북마크 트리
+- **드래그 앤 드롭**: 폴더/북마크 순서 변경, 다른 폴더로 이동
+- **인라인 수정**: 폴더 더블클릭으로 이름 변경, 북마크 편집 미니 카드
+- **검색**: 폴더명/북마크 제목/URL 검색 필터 (300ms 디바운싱)
+- **전체 선택/해제**: 체크박스로 폴더 단위 또는 전체 선택
+- **현재 탭 저장**: 열린 탭을 원하는 폴더에 북마크로 저장
+- **퀵 세이브**: 지정 폴더에 한 번 클릭으로 북마크 저장
+- **다크/라이트 테마**: 원클릭 테마 전환, 설정 자동 저장
 
-### 개발자 모드
-```bash
-pnpm install
-pnpm build
-# chrome://extensions → 개발자 모드 → 압축해제된 확장 프로그램 로드 → dist/ 선택
-```
+### Kalpie Notebook 연동
+- **Sync Key 인증**: Notebook에서 발급받은 키로 안전하게 인증
+- **선택 전송**: 체크한 폴더/북마크만 Notebook으로 전송
+- **전송 취소**: 진행 중 언제든 취소 가능
+- **개인정보 보호**: 사용자 동의 후 선택한 항목만 전송
+
+## 기술 스택
+
+![React](https://img.shields.io/badge/React-19-61DAFB?logo=react&logoColor=white)
+![TypeScript](https://img.shields.io/badge/TypeScript-5.3-3178C6?logo=typescript&logoColor=white)
+![Vite](https://img.shields.io/badge/Vite-5-646CFF?logo=vite&logoColor=white)
+![Zustand](https://img.shields.io/badge/Zustand-5-orange)
+![Tailwind CSS](https://img.shields.io/badge/Tailwind%20CSS-4-06B6D4?logo=tailwindcss&logoColor=white)
+![dnd--kit](https://img.shields.io/badge/dnd--kit-drag%20%26%20drop-ff6b6b)
+![CRXJS](https://img.shields.io/badge/CRXJS-Manifest%20V3-yellow)
+![pnpm](https://img.shields.io/badge/pnpm-F69220?logo=pnpm&logoColor=white)
 
 ## 아키텍처
 
@@ -82,96 +94,26 @@ pnpm build
   apiService.ts ──→ Kalpie Backend API
 ```
 
-## 기술 스택
-
-| 항목 | 기술 |
-|------|------|
-| UI | React 19 + TypeScript 5.3 |
-| 빌드 | Vite 5 + CRXJS (Manifest V3) |
-| 상태관리 | Zustand 5 (슬라이스 패턴) |
-| 스타일 | Tailwind CSS 4 + 컴포넌트별 CSS |
-| 드래그 앤 드롭 | @dnd-kit/core + @dnd-kit/sortable |
-| 아이콘 | lucide-react |
-| 패키지 매니저 | pnpm |
+`store-utils.ts`에서 트리 순회 유틸 (`flattenFolders`, `collectSubFolderIds`, `collectUrlIds` 등)을 분리하여 슬라이스 간 공유합니다.
 
 ## 프로젝트 구조
 
-<details>
-<summary>전체 구조 보기</summary>
-
 ```
 extension/src/
-├── popup/                          # 팝업 엔트리포인트
-│   ├── styles/
-│   │   ├── popup.css               # 전역: 테마 변수, 리셋, 애니메이션, 공유 UI
-│   │   ├── form-panel.css          # FormPanel 스타일
-│   │   └── drawer.css              # Drawer 스타일 (ConfirmDrawer, Settings 등)
-│   ├── App.tsx
-│   └── main.tsx
-├── components/
-│   ├── FolderTree/                 # VS Code 스타일 폴더 트리
-│   │   ├── FolderTree.tsx          # DndContext + handleDragEnd
-│   │   ├── FolderNode.tsx          # 개별 폴더 행 (useSortable, 인라인 수정)
-│   │   ├── FolderTreeList.tsx      # 재귀 리스트 래퍼 (SortableContext)
-│   │   ├── tree-utils.ts           # filterBookmarks, findBookmarkIndex
-│   │   └── FolderTree.css
-│   ├── BookmarkItem/               # 개별 북마크 행 (useSortable)
-│   ├── BookmarkEditor/             # 미니 카드 — 북마크 추가/수정
-│   ├── ActionBar/                  # 하단 액션 바 (선택, 삭제, 빠른저장, 폼 열기)
-│   ├── FormPanel/                  # 하단 폼 (폴더 생성, 탭 저장, URL 추가, 퀵세이브 설정)
-│   ├── ConfirmDrawer/              # 삭제 확인 드로어
-│   ├── SearchBar/                  # 검색 입력 + 전체 접기/펼치기
-│   ├── Settings/                   # Sync Key 입력, 동기화 전송/취소
-│   │   ├── hooks/                  # use-consent, use-sync
-│   │   └── utils/                  # settings-utils
-│   ├── Sidebar/                    # 메인 레이아웃 (검색→트리→액션바→폼/설정)
-│   ├── CustomCheckbox/             # 커스텀 체크박스
-│   ├── Icons/                      # 공통 아이콘 (EmptyBox 등)
-│   └── TagBadge/                   # 태그 배지
-├── store/
-│   ├── bookmarkStore.ts            # Zustand 스토어 (슬라이스 조합)
-│   ├── types.ts                    # BookmarkState, SliceCreator 타입
-│   ├── store-utils.ts              # 트리 유틸 (flattenFolders, collectUrlIds 등)
-│   └── slices/
-│       ├── selectionSlice.ts       # 선택 로직 (toggleSelect, selectAll 등)
-│       ├── crudSlice.ts            # CRUD (add/update/delete/move, 폴더 관리)
-│       ├── syncSlice.ts            # 서버 동기화 (syncToServer, cancelSync)
-│       └── uiSlice.ts              # UI 상태 (loadBookmarks, toggleFolder, 검색)
-├── services/
-│   ├── bookmarkService.ts          # Chrome Bookmarks API 래퍼
-│   ├── apiService.ts               # 백엔드 API 통신
-│   └── storageService.ts           # Chrome Storage 유틸
-├── hooks/
-│   └── useQuickSave.ts             # 퀵 세이브 훅
-├── types/
-│   └── bookmark.ts                 # BookmarkFolder, BookmarkUrl, 타입 가드
-├── utils/
-│   └── logger.ts                   # 로깅 유틸
-├── forms/                          # 별도 폼 윈도우 (독립 엔트리포인트)
-│   ├── FormApp.tsx
-│   ├── form.css
-│   ├── index.html
-│   └── main.tsx
-├── assets/                         # 아이콘 등 정적 리소스
-└── background/                     # Service Worker
-    └── index.ts
+├── popup/           # 팝업 엔트리포인트 (App.tsx, main.tsx, styles/)
+├── components/      # UI 컴포넌트
+│   ├── Sidebar/     #   메인 레이아웃
+│   ├── FolderTree/  #   DndContext + 재귀 폴더 트리
+│   ├── BookmarkItem/#   개별 북마크 행
+│   ├── ActionBar/   #   하단 액션 바
+│   ├── Settings/    #   Sync Key 입력, 동기화
+│   └── ...          #   SearchBar, FormPanel, ConfirmDrawer 등
+├── store/           # Zustand (슬라이스 패턴)
+│   └── slices/      #   uiSlice, selectionSlice, crudSlice, syncSlice
+├── services/        # Chrome Bookmarks API, 백엔드 API, Storage
+├── types/           # BookmarkFolder, BookmarkUrl, 타입 가드
+└── background/      # Service Worker
 ```
-
-</details>
-
-## 상태 관리 설계
-
-Zustand 스토어를 **슬라이스 패턴**으로 분리하여 관심사를 명확히 구분합니다.
-
-```
-bookmarkStore.ts (조합)
-├── uiSlice        → 북마크 로드, 폴더 열기/닫기, 검색 필터링
-├── selectionSlice → 체크박스 토글, 폴더 단위 선택, 전체 선택/해제
-├── crudSlice      → 폴더/북마크 생성, 수정, 삭제, 드래그 이동
-└── syncSlice      → Sync Key 인증, 서버 전송, 전송 취소
-```
-
-`store-utils.ts`에서 트리 순회 유틸 (`flattenFolders`, `collectSubFolderIds`, `collectUrlIds`, `filterBySelectedIds` 등)을 분리하여 슬라이스 간 공유합니다.
 
 ## API 연동
 
@@ -204,7 +146,3 @@ Body: { nodes: ExtensionBookmarkNode[] }
 | v1.2.4 | UI 개선, 스타일 분리, 모듈화, Chrome Web Store 배포 준비 |
 | v1.2.3 | API 연동 추가 |
 | v1.2.1 | 기본 버전 |
-
-## 라이선스
-
-MIT License
