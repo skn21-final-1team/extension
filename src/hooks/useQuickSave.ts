@@ -49,6 +49,17 @@ function useQuickSave() {
     if (!folder) return
     setStatus('saving')
     try {
+      // 저장 전에 폴더가 아직 존재하는지 확인
+      const nodes = await chrome.bookmarks.get(folder.id).catch(() => null)
+      if (!nodes?.length) {
+        // 폴더가 삭제됨 — 자동 해제
+        setFolder(null)
+        chrome.storage.local.remove(STORAGE_KEYS.QUICK_SAVE_FOLDER)
+        setStatus('error')
+        setTimeout(() => setStatus('idle'), 3000)
+        return
+      }
+
       const [tab] = await chrome.tabs.query({ active: true, currentWindow: true })
       if (!tab?.url) throw new Error('No active tab')
       await chrome.bookmarks.create({

@@ -5,7 +5,7 @@
 import { useState, useMemo } from 'react'
 import { X, Link2, AlertCircle } from 'lucide-react'
 import { useBookmarkStore } from '../../store/bookmarkStore'
-import type { BookmarkFolderList } from '../../types/bookmark'
+import { flattenFolders } from '../../store/store-utils'
 import { logger } from '../../utils/logger'
 import './BookmarkEditor.css'
 
@@ -13,20 +13,6 @@ interface BookmarkEditorProps {
   onClose: () => void
   editBookmark?: { id: string; title: string; url: string; parentId?: string }
   defaultParentId?: string
-}
-
-const flattenFolders = (
-  list: BookmarkFolderList,
-  depth = 0,
-  result: Array<{ id: string; name: string; level: number }> = []
-) => {
-  for (const item of list) {
-    if ('folders' in item) {
-      result.push({ id: item.id, name: item.name, level: depth })
-      if (item.folders) flattenFolders(item.folders, depth + 1, result)
-    }
-  }
-  return result
 }
 
 function BookmarkEditor({ onClose, editBookmark, defaultParentId }: BookmarkEditorProps) {

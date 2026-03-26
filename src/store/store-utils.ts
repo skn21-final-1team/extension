@@ -1,5 +1,22 @@
 import type { BookmarkFolderList, ExtensionBookmarkNode } from '../types/bookmark'
 
+export interface FolderOption { id: string; name: string; level: number }
+
+/**
+ * 폴더 트리를 평탄화하여 select 옵션용 배열로 반환합니다.
+ */
+export const flattenFolders = (
+  list: BookmarkFolderList,
+  depth = 0,
+  result: FolderOption[] = []
+): FolderOption[] => {
+  for (const item of list) {
+    result.push({ id: item.id, name: item.name, level: depth })
+    if (item.folders) flattenFolders(item.folders, depth + 1, result)
+  }
+  return result
+}
+
 /**
  * 북마크 트리 내의 모든 URL ID를 재귀적으로 찾아 반환합니다.
  */
