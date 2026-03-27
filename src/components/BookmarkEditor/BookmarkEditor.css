@@ -1,30 +1,31 @@
 /* ── 미니 카드 (모달 대체) ── */
 @keyframes card-pop {
-  from { opacity: 0; transform: translateY(4px) scale(0.96); }
-  to   { opacity: 1; transform: translateY(0) scale(1); }
+  from { opacity: 0; transform: translate(-50%, -50%) scale(0.96); }
+  to   { opacity: 1; transform: translate(-50%, -50%) scale(1); }
 }
 
-/* 클릭 외부 닫기용 투명 배경 */
+/* 클릭 외부 닫기용 반투명 배경 */
 .card-backdrop {
   position: absolute;
   inset: 0;
   z-index: 49;
+  background: rgba(0, 0, 0, 0.35);
 }
 
-/* 카드 본체 */
+/* 카드 본체 — 팝업 중앙 배치 */
 .mini-card {
   position: absolute;
-  bottom: 56px;
+  top: 50%;
   left: 50%;
-  transform: translateX(-50%);
-  width: 220px;
+  transform: translate(-50%, -50%);
+  width: 260px;
   background: var(--bg-elevated);
   border: 1px solid var(--border-default);
   border-radius: 10px;
   box-shadow: 0 6px 24px rgba(0, 0, 0, 0.35), 0 0 0 1px rgba(255,255,255,0.04) inset;
   z-index: 50;
   animation: card-pop 0.14s cubic-bezier(0.16, 1, 0.3, 1) both;
-  transform-origin: bottom center;
+  transform-origin: center center;
 }
 
 .mini-card-head {

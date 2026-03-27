@@ -1,4 +1,4 @@
-# Bookalpie 사용 가이드 v3.0.1
+# Bookalpie 사용 가이드 v3.0.2
 
 Chrome 북마크를 쉽고 빠르게 관리하는 Bookalpie 확장 프로그램의 사용법입니다.
 
@@ -330,4 +330,4 @@ Bookalpie에서 삭제한 북마크는 Chrome의 북마크에서도 삭제됩니
 
 ---
 
-**Bookalpie v3.0.1** | Kalpie와 함께 북마크를 스마트하게 관리하세요.
+**Bookalpie v3.0.2** | Kalpie와 함께 북마크를 스마트하게 관리하세요.

@@ -3,6 +3,7 @@
  */
 
 import { useState, useMemo } from 'react'
+import { createPortal } from 'react-dom'
 import { X, Link2, AlertCircle } from 'lucide-react'
 import { useBookmarkStore } from '../../store/bookmarkStore'
 import { flattenFolders } from '../../store/store-utils'
@@ -56,7 +57,10 @@ function BookmarkEditor({ onClose, editBookmark, defaultParentId }: BookmarkEdit
     }
   }
 
-  return (
+  // .sidebar-tree의 overflow-y: auto에 의해 잘리지 않도록 .app-main으로 포탈
+  const portalTarget = document.querySelector('.app-main') || document.body
+
+  return createPortal(
     <>
       <div className="card-backdrop" onClick={onClose} />
       <div className="mini-card">
@@ -115,7 +119,8 @@ function BookmarkEditor({ onClose, editBookmark, defaultParentId }: BookmarkEdit
           </div>
         </form>
       </div>
-    </>
+    </>,
+    portalTarget,
   )
 }
 

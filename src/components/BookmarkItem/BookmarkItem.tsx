@@ -23,6 +23,7 @@ interface BookmarkItemProps {
 
 const BookmarkItem = memo(({ bookmark, parentId, depth = 0 }: BookmarkItemProps) => {
   const { selectedIds, toggleSelect, deleteBookmark } = useBookmarkStore()
+  const isSelected = selectedIds.has(bookmark.id)
   const [showActions, setShowActions] = useState(false)
   const [showEditor, setShowEditor] = useState(false)
   const [faviconError, setFaviconError] = useState(false)
@@ -38,8 +39,6 @@ const BookmarkItem = memo(({ bookmark, parentId, depth = 0 }: BookmarkItemProps)
     id: bookmark.id,
     data: { type: 'bookmark', id: bookmark.id, parentId },
   })
-
-  const isSelected = selectedIds.has(bookmark.id)
 
   const getFaviconUrl = () => {
     if (!bookmark.url) return null
